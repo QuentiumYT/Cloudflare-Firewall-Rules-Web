@@ -28,6 +28,7 @@ const askName = () => {
         preConfirm: (name) => {
             if (name.length > 3) {
                 cfeditor.currentFile = name + ".txt";
+                updateInfos(cfeditor.currentFile, cfeditor.currentState);
                 saveRule();
             } else {
                 Swal.showValidationMessage("Rule name must be at least 4 characters long");
@@ -168,6 +169,14 @@ const deleteRule = () => {
     }
 
     setEditorState("unloaded");
+};
+
+const currentFile = document.getElementById("current-file");
+const currentState = document.getElementById("current-state");
+
+const updateInfos = (name, state) => {
+    currentFile.innerText = name;
+    currentState.innerText = "(" + state + ")";
 };
 
 document.addEventListener("keydown", (e) => {

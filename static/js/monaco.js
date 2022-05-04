@@ -3,6 +3,7 @@ var cfeditor = window.cfeditor || {};
 let setEditorState = function (state) {
     let prevState = cfeditor.currentState;
     cfeditor.currentState = state;
+    updateInfos(cfeditor.currentFile, cfeditor.currentState);
     // console.log(prevState + " -> " + state);
 };
 
