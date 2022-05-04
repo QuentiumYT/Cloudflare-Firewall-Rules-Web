@@ -1,0 +1,7 @@
+{
+  "description": "This package.json is here because Flask cannot access files outside the static folder",
+  "dependencies": {
+    "monaco-editor": "^0.33.0",
+    "sweetalert2": "^11.4.10"
+  }
+}

@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply text-gray-common;
+}
+
+.title {
+    @apply text-2xl text-center leading-[3.5rem] bg-gray-light h-14;
+}

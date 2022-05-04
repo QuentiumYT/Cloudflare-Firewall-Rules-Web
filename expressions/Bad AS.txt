@@ -1,0 +1,15 @@
+#! action:challenge paused:False priority:847 !#
+# Hetzner Online GmbH
+(ip.geoip.asnum eq 24940) or
+# Telenet BVBA
+(ip.geoip.asnum eq 6848) or
+# DigitalOcean, LLC
+(ip.geoip.asnum eq 14061) or
+# OVH SAS
+(ip.geoip.asnum eq 16276) or
+# Techcrea Solutions SAS
+(ip.geoip.asnum eq 197922) or
+# HUAWEI INTERNATIONAL PTE. LTD.
+(ip.geoip.asnum eq 136907) or
+# Facebook, Inc.
+(ip.geoip.asnum eq 32934)

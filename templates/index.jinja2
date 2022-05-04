@@ -1,0 +1,35 @@
+{% extends "base.jinja2" %}
+
+{% block title %}Cloudflare Firewall Rules{% endblock %}
+
+{% block body %}
+
+<main class="flex">
+    <aside class="flex flex-col min-w-[300px]">
+        <h2 class="title mb-2">Available rules</h2>
+        <ul>
+            {% for rule in rules %}
+            <li class="text-white text-sm m-2 bg-secondary p-2 rounded-md">
+                <a class="block" onclick="setRuleContent('{{ rule }}')">{{ rule }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </aside>
+
+    <section class="flex flex-col flex-1">
+        <h2 class="title mb-14 border-x border-stone-300">Online rule editor</h2>
+
+        <p>This is a rule editor for the <a href="https://developers.cloudflare.com/firewall/" target="_BLANK" class="text-secondary">Cloudflare Firewall</a> using the same syntax and expressions.</p>
+
+        <div id="container" class="max-h-full h-96 border border-gray-light"></div>
+
+        <button id="save" class="text-white m-auto mt-8 bg-secondary p-2 w-36 rounded-md">Save</button>
+
+        <script type="text/javascript" src="{{ url_for('static', filename='node_modules/sweetalert2/dist/sweetalert2.all.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='node_modules/monaco-editor/min/vs/loader.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/monaco.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/editor.js') }}"></script>
+    </section>
+</main>
+
+{% endblock %}

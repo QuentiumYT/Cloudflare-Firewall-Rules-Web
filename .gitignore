@@ -1,0 +1,26 @@
+# IDE
+.idea/
+.vscode/
+
+# Node modules
+node_modules/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Windows file
+desktop.ini
+
+static/css/*
+
+# User expressions
+expressions_*/
+
+# Perso
++extra/
