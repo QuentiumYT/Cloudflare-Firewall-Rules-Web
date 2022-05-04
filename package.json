@@ -13,12 +13,13 @@
     "cssnano": "^5.1.7",
     "postcss": "^8.4.13",
     "postcss-cli": "^9.1.0",
+    "postcss-import": "^14.1.0",
     "tailwindcss": "^3.0.24"
   },
   "scripts": {
-    "dev": "cross-env NODE_ENV=development postcss ./static/scss/app.scss -o ./static/css/main.css",
-    "watch": "cross-env TAILWIND_MODE=watch NODE_ENV=development postcss ./static/scss/app.scss -o ./static/css/main.css -w",
-    "build": "cross-env TAILWIND_MODE=build NODE_ENV=production postcss ./static/scss/app.scss -o ./static/css/main.css"
+    "dev": "cross-env NODE_ENV=development postcss ./static/scss/style.scss -o ./static/css/main.css",
+    "watch": "cross-env TAILWIND_MODE=watch NODE_ENV=development postcss ./static/scss/style.scss -o ./static/css/main.css -w",
+    "build": "cross-env TAILWIND_MODE=build NODE_ENV=production postcss ./static/scss/style.scss -o ./static/css/main.css"
   },
   "repository": {
     "type": "git",
