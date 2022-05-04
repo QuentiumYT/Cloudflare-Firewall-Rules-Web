@@ -1,0 +1,7 @@
+.ss-main {
+    @apply w-[11.25rem];
+
+    .ss-single-selected {
+        @apply h-9 border border-gray-common;
+    }
+}

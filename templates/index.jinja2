@@ -2,11 +2,16 @@
 
 {% block title %}Cloudflare Firewall Rules{% endblock %}
 
+{% block link %}
+<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/sweetalert2/dist/sweetalert2.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/slim-select/dist/slimselect.min.css') }}">
+{% endblock %}
+
 {% block body %}
 
 <main class="flex">
     <aside class="flex flex-col min-w-[300px]">
-        <h2 class="title mb-2">Available rules</h2>
+        <h2 class="title mb-2 border-x border-stone-300">Available rules</h2>
         <ul>
             {% for rule in rules %}
             <li class="text-white text-sm m-2 bg-secondary p-2 rounded-md">
@@ -24,12 +29,51 @@
         <div id="container" class="max-h-full h-96 border border-gray-light"></div>
 
         <button id="save" class="text-white m-auto mt-8 bg-secondary p-2 w-36 rounded-md">Save</button>
-
-        <script type="text/javascript" src="{{ url_for('static', filename='node_modules/sweetalert2/dist/sweetalert2.all.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='node_modules/monaco-editor/min/vs/loader.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/monaco.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/editor.js') }}"></script>
     </section>
+
+    <section class="flex flex-col">
+        <h2 class="title mb-14 border-x border-stone-300">Status</h2>
+
+        <div class="mx-2">
+            <div class="mb-4">
+                <p>Action:</p>
+                <select name="action" id="action">
+                    <option value="managed_challenge">Managed Challenge (Recommended)</option>
+                    <option value="block">Block</option>
+                    <option value="js_challenge">JS Challenge</option>
+                    <option value="allow">Allow</option>
+                    <option value="bypass">Bypass</option>
+                    <option value="challenge">Legacy CAPTCHA</option>
+                    <option value="log">Log (Business only)</option>
+                </select>
+            </div>
+
+            <div class="flex mb-4">
+                <p>Active:</p>
+                <div class="flex items-center justify-center w-full">
+                    <label for="paused" class="flex items-center cursor-pointer">
+                        <div class="relative">
+                            <input type="checkbox" id="paused" class="sr-only">
+                            <div class="line block bg-gray-inactive w-10 h-5 rounded-full border border-gray-active"></div>
+                            <div class="dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition"></div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <p>Priority:</p>
+                <input type="number" id="priority" value="" class="h-9 w-36 p-1.5 border border-gray-active rounded-md">
+            </div>
+        </div>
+    </section>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='node_modules/sweetalert2/dist/sweetalert2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='node_modules/slim-select/dist/slimselect.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='node_modules/monaco-editor/min/vs/loader.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/monaco.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/editor.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/select.js') }}"></script>
 </main>
 
 {% endblock %}

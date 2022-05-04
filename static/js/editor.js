@@ -1,12 +1,37 @@
-const setRuleContent = (name) => {
-    let saveBtn = document.getElementById("save");
-    saveBtn.setAttribute("onclick", "saveRule('" + name + "')");
+const processHeader = (headerLine) => {
+    if (headerLine.startsWith("#!") && headerLine.endsWith("!#")) {
+        headerLine = headerLine.substring(2);
+        headerLine = headerLine.substring(0, headerLine.length - 2);
 
+        let header = headerLine.split(" ").reduce((obj, item) => {
+            let [key, value] = item.split(":");
+            obj[key] = value;
+            return obj;
+        }, {});
+        return header;
+    } else {
+        return null;
+    }
+};
+
+const setRuleContent = (name) => {
     fetch("/get-file/" + name)
         .then((response) => response.text())
         .then((text) => {
             cfeditor.currentFile = name;
             cfeditor.setValue(text);
+
+            let header = processHeader(text.split("\n")[0]);
+
+            if (header !== null) {
+                actionSelect.set(header.action);
+                document.getElementById("paused").checked = header.paused === "False";
+                document.getElementById("priority").value = header.priority;
+            } else {
+                actionSelect.set("");
+                document.getElementById("paused").checked = false;
+                document.getElementById("priority").value = "";
+            }
         });
 
     setEditorState("unloaded");
