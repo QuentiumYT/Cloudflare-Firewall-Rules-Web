@@ -37,11 +37,13 @@ const setRuleContent = (name) => {
     setEditorState("unloaded");
 };
 
-const saveRule = (name) => {
-    if (cfeditor.currentState === "loaded") {
+const saveRule = () => {
+    let name = cfeditor.currentFile;
+
+    if (cfeditor.currentState === "loaded" && cfeditor.getValue() !== "") {
         Swal.fire({
             title: "No modifications",
-            text: "Nothing has changed",
+            text: "Nothing has changed in the file",
             icon: "info",
             timer: 800,
         });
@@ -58,6 +60,8 @@ const saveRule = (name) => {
                     icon: "success",
                     timer: 800,
                 });
+
+                setEditorState("loaded");
             })
             .catch((error) => {
                 Swal.fire({
@@ -67,7 +71,65 @@ const saveRule = (name) => {
                 });
             });
     }
-    setEditorState("loaded");
+};
+
+const downloadRule = () => {
+    let name = cfeditor.currentFile;
+
+    if (cfeditor.isDeleted === true) {
+        name = "(deleted) " + name;
+    }
+
+    if (name !== undefined && cfeditor.getValue() !== "") {
+        let content = cfeditor.getValue();
+
+        let element = document.createElement("a");
+        element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(content));
+        element.setAttribute("download", name);
+
+        element.style.display = "none";
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+};
+
+const deleteRule = () => {
+    let name = cfeditor.currentFile;
+
+    if (name !== undefined && cfeditor.isDeleted !== true) {
+        fetch("/delete-file/" + name, {
+            method: "DELETE",
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                Swal.fire({
+                    title: "Deleted",
+                    text: "Rule deleted successfully",
+                    icon: "success",
+                    timer: 800,
+                });
+
+                cfeditor.isDeleted = true;
+            })
+            .catch((error) => {
+                Swal.fire({
+                    title: "Error",
+                    text: "Error deleting rule: " + error,
+                    icon: "error",
+                });
+            });
+    } else if (cfeditor.isDeleted === true) {
+        Swal.fire({
+            title: "Warning",
+            text: "Rule is already deleted",
+            icon: "warning",
+        });
+    }
+
+    setEditorState("unloaded");
 };
 
 document.addEventListener("keydown", (e) => {

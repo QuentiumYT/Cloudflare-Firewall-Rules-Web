@@ -28,7 +28,11 @@
 
         <div id="container" class="max-h-full h-96 border border-gray-light"></div>
 
-        <button id="save" class="text-white m-auto mt-8 bg-secondary p-2 w-36 rounded-md">Save</button>
+        <div class="flex">
+            <button id="save" class="btn w-36" onclick="saveRule()">Save locally</button>
+            <button id="download" class="btn w-36" onclick="downloadRule()">Download as file</button>
+            <button id="delete" class="btn w-36" onclick="deleteRule()">Delete locally</button>
+        </div>
     </section>
 
     <section class="flex flex-col">

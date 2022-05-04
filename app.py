@@ -39,6 +39,20 @@ def save_file(filename=None):
 
     return {"success": "File saved"}
 
+@app.route("/delete-file/")
+@app.route("/delete-file/<path:filename>", methods=["DELETE"])
+def delete_file(filename=None):
+    if not filename:
+        return {"error": "No file path provided"}, 400
+
+    if not os.path.isfile(cf.utils.directory + "/" + filename):
+        return {"error": "File not found"}, 404
+
+    filename = filename.replace("%20", "")
+
+    os.remove(cf.utils.directory + "/" + filename)
+
+    return {"success": "File deleted"}
 
 
 @app.route("/")
