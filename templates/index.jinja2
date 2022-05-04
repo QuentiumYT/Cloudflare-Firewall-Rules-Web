@@ -15,10 +15,14 @@
         <ul>
             {% for rule in rules %}
             <li class="text-white text-sm m-2 bg-secondary p-2 rounded-md">
-                <a class="block" onclick="setRuleContent('{{ rule }}')">{{ rule }}</a>
+                <a class="block" onclick="loadRule('{{ rule }}')">{{ rule }}</a>
             </li>
             {% endfor %}
         </ul>
+
+        <button id="create" class="btn" onclick="createRule()">
+            <img src="{{ url_for('static', filename='img/plus.svg') }}" alt="User icon" class="m-2 w-10 h-10">
+        </button>
     </aside>
 
     <section class="flex flex-col flex-1">

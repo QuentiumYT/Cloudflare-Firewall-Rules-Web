@@ -14,7 +14,41 @@ const processHeader = (headerLine) => {
     }
 };
 
-const setRuleContent = (name) => {
+const askName = () => {
+    Swal.fire({
+        title: "Create a new rule",
+        text: "Enter a name for the rule",
+        input: "text",
+        inputAttributes: {
+            autocapitalize: "off",
+        },
+        showCancelButton: true,
+        confirmButtonText: "Save",
+        showLoaderOnConfirm: true,
+        preConfirm: (name) => {
+            if (name.length > 3) {
+                cfeditor.currentFile = name + ".txt";
+                saveRule();
+            } else {
+                Swal.showValidationMessage("Rule name must be at least 4 characters long");
+            }
+        },
+    });
+
+    setEditorState("edited");
+};
+
+const createRule = () => {
+    askName();
+
+    actionSelect.set("");
+    document.getElementById("paused").checked = false;
+    document.getElementById("priority").value = "";
+
+    cfeditor.setValue("# enter your cloudflare rules here");
+};
+
+const loadRule = (name) => {
     fetch("/get-file/" + name)
         .then((response) => response.text())
         .then((text) => {
@@ -39,6 +73,10 @@ const setRuleContent = (name) => {
 
 const saveRule = () => {
     let name = cfeditor.currentFile;
+
+    if (name === undefined && cfeditor.getValue() !== "") {
+        askName();
+    }
 
     if (cfeditor.currentState === "loaded" && cfeditor.getValue() !== "") {
         Swal.fire({
