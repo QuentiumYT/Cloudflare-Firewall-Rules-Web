@@ -14,7 +14,7 @@ const processHeader = (headerLine) => {
     }
 };
 
-const askName = () => {
+const askName = async () => {
     Swal.fire({
         title: "Create a new rule",
         text: "Enter a name for the rule",
@@ -39,7 +39,7 @@ const askName = () => {
     setEditorState("edited");
 };
 
-const createRule = () => {
+const createRule = async () => {
     askName();
 
     actionSelect.set("");
@@ -49,7 +49,25 @@ const createRule = () => {
     cfeditor.setValue("# enter your cloudflare rules here");
 };
 
-const loadRule = (name) => {
+const loadRule = async (name) => {
+    if (cfeditor.currentState === "edited") {
+        let agreeSwitch = await Swal.fire({
+            title: "Are you sure you want to switch?",
+            text: "You have unsaved changes in the current rule, if you switch it will be lost forever :/",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, switch to it!",
+        }).then((result) => {
+            return result.isConfirmed;
+        });
+
+        if (!agreeSwitch) {
+            return;
+        }
+    }
+
     fetch("/get-file/" + name)
         .then((response) => response.text())
         .then((text) => {
@@ -69,10 +87,12 @@ const loadRule = (name) => {
             }
         });
 
+    cfeditor.isDeleted = false;
+
     setEditorState("unloaded");
 };
 
-const saveRule = () => {
+const saveRule = async () => {
     let name = cfeditor.currentFile;
 
     if (name === undefined && cfeditor.getValue() !== "") {
@@ -100,6 +120,8 @@ const saveRule = () => {
                     timer: 800,
                 });
 
+                cfeditor.isDeleted = false;
+
                 setEditorState("loaded");
             })
             .catch((error) => {
@@ -112,7 +134,7 @@ const saveRule = () => {
     }
 };
 
-const downloadRule = () => {
+const downloadRule = async () => {
     let name = cfeditor.currentFile;
 
     if (cfeditor.isDeleted === true) {
@@ -135,10 +157,26 @@ const downloadRule = () => {
     }
 };
 
-const deleteRule = () => {
+const deleteRule = async () => {
     let name = cfeditor.currentFile;
 
     if (name !== undefined && cfeditor.isDeleted !== true) {
+        let agreeDelete = await Swal.fire({
+            title: "Are you sure to delete this rule?",
+            text: "You can save it back if you stay on the page, else it will be deleted forever :/",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+        }).then((result) => {
+            return result.isConfirmed;
+        });
+
+        if (!agreeDelete) {
+            return;
+        }
+
         fetch("/delete-file/" + name, {
             method: "DELETE",
         })
@@ -152,6 +190,8 @@ const deleteRule = () => {
                 });
 
                 cfeditor.isDeleted = true;
+
+                setEditorState("unloaded");
             })
             .catch((error) => {
                 Swal.fire({
@@ -167,8 +207,6 @@ const deleteRule = () => {
             icon: "warning",
         });
     }
-
-    setEditorState("unloaded");
 };
 
 const currentFile = document.getElementById("current-file");
