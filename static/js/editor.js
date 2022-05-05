@@ -29,24 +29,32 @@ const askName = async () => {
             if (name.length > 3) {
                 cfeditor.currentFile = name + ".txt";
                 updateInfos(cfeditor.currentFile, cfeditor.currentState);
-                saveRule();
+                setEditorState("edited");
+                if (cfeditor.isCreated === undefined) {
+                    cfeditor.isCreated = true;
+                    createRule();
+                } else {
+                    saveRule();
+                }
             } else {
                 Swal.showValidationMessage("Rule name must be at least 4 characters long");
             }
         },
     });
-
-    setEditorState("edited");
 };
 
 const createRule = async () => {
-    askName();
+    if (cfeditor.isCreated === true) {
+        actionSelect.set("");
+        document.getElementById("paused").checked = false;
+        document.getElementById("priority").value = "";
 
-    actionSelect.set("");
-    document.getElementById("paused").checked = false;
-    document.getElementById("priority").value = "";
+        cfeditor.setValue("# enter your cloudflare rules here");
+    } else {
+        askName();
+    }
 
-    cfeditor.setValue("# enter your cloudflare rules here");
+    cfeditor.isCreated = undefined;
 };
 
 const loadRule = async (name) => {
@@ -97,6 +105,7 @@ const saveRule = async () => {
 
     if (name === undefined && cfeditor.getValue() !== "") {
         askName();
+        cfeditor.isCreated = true;
     }
 
     if (cfeditor.currentState === "loaded" && cfeditor.getValue() !== "") {
