@@ -4,16 +4,36 @@ module.exports = {
     extend: {
       colors: {
         primary: "#f6821f",
-        secondary: "#0051c3",
-        gray: {
-            "inactive": "#595959",
-            "common": "#4a4a4a",
-            "active": "#3a3a3a",
-            "light": "#f2f2f2",
+        secondary: {
+          DEFAULT: "#0051c3",
+          dark: "#003681",
         },
-        success: "#a8e9c0",
-        warning: "#fbcda5",
-        danger: "#feccc8",
+        gray: {
+          inactive: "#595959",
+          common: "#4a4a4a",
+          active: "#3a3a3a",
+          light: "#f2f2f2",
+        },
+        success: {
+          DEFAULT: "#a8e9c0",
+          light: "#effbf3",
+          dark: "#144d28",
+        },
+        info: {
+          DEFAULT: "#82b6ff",
+          light: "#ecf4ff",
+          dark: "#004099",
+        },
+        warning: {
+          DEFAULT: "#fbcda5",
+          light: "#fef4ec",
+          dark: "#7a3c05",
+        },
+        danger: {
+          DEFAULT: "#fe9f97",
+          light: "#ffeceb",
+          dark: "#8d0d01",
+        },
       },
       boxShadow: {
         drop: "0 10px 30px 0 rgba(0, 0, 0, 0.1)",

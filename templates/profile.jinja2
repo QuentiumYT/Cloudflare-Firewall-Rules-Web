@@ -1,0 +1,87 @@
+{% extends "base.jinja2" %}
+
+{% block title %}Cloudflare Firewall Rules - Profile{% endblock %}
+
+{% block body %}
+
+<main class="flex-auto">
+    <div class="flex flex-col sm:flex-row items-center justify-center h-full">
+        <div class="w-full max-w-sm">
+            <form class="bg-white shadow-md rounded p-8" action="{{ url_for('auth.login_key') }}" method="POST">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="email">
+                        Email
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="email" placeholder="Email" name="email" value="{{ email }}" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-bold mb-2" for="key">
+                        Global API Key
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="password" placeholder="API Key" name="key" value="{{ key }}" required>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button class="!px-4 btn" type="submit">
+                        Login
+                    </button>
+                </div>
+
+                {% with messages = get_flashed_messages(category_filter=["error_key"]) %}
+
+                {% if messages %}
+                <div class="my-4">
+                    {% for message in messages %}
+                    <div class="bg-danger-light border border-danger text-danger-dark px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">Error while authenticating!</strong>
+                        <br>
+                        <span class="block sm:inline">{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% endwith %}
+            </form>
+        </div>
+
+        <div class="flex flex-col px-10">
+            <div class="text-4xl text-center font-bold pb-6">OR</div>
+            <div class="border border-gray-common h-32 mx-8 hidden sm:block"></div>
+        </div>
+
+        <div class="w-full max-w-sm">
+            <form class="bg-white shadow-md rounded p-8" action="{{ url_for('auth.login_token') }}" method="POST">
+                <div class="mb-6 py-11">
+                    <label class="block text-gray-700 font-bold mb-2" for="token">
+                        API Token
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="password" placeholder="API Token" name="token" value="{{ token }}" required>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <button class="!px-4 btn" type="submit">
+                        Login
+                    </button>
+                </div>
+
+                {% with messages = get_flashed_messages(category_filter=["error_token"]) %}
+
+                {% if messages %}
+                <div class="my-4">
+                    {% for message in messages %}
+                    <div class="bg-danger-light border border-danger text-danger-dark px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">Error while authenticating!</strong>
+                        <br>
+                        <span class="block sm:inline">{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% endwith %}
+            </form>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

@@ -1,7 +1,9 @@
 <header class="flex justify-between items-center h-16 border-b border-stone-300">
-    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Website Cloudflare logo" class="w-28 ml-4 h-auto">
+    <a href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Website Cloudflare logo" class="w-28 ml-4 h-auto">
+    </a>
     <h1 class="font-semibold text-3xl">Cloudflare Firewall Rules</h1>
-    <a href="#" class="flex items-center px-4 leading-[4rem] hover:bg-gray-light border-b border-stone-300">
+    <a href="{{ url_for('profile') }}" class="flex items-center px-4 leading-[4rem] hover:bg-gray-light border-b border-stone-300">
         <img src="{{ url_for('static', filename='img/user.svg') }}" alt="User icon" class="w-6 h-auto">
         <p class="ml-2">Login</p>
     </a>
