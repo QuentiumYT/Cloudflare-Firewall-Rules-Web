@@ -5,6 +5,12 @@
     <h1 class="font-semibold text-3xl">Cloudflare Firewall Rules</h1>
     <a href="{{ url_for('profile') }}" class="flex items-center px-4 leading-[4rem] hover:bg-gray-light border-b border-stone-300">
         <img src="{{ url_for('static', filename='img/user.svg') }}" alt="User icon" class="w-6 h-auto">
-        <p class="ml-2">Login</p>
+        <p class="ml-2">
+            {% if user.is_active %}
+            Profile
+            {% else %}
+            Login
+            {% endif %}
+        </p>
     </a>
 </header>

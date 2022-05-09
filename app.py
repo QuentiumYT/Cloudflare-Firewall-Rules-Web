@@ -2,6 +2,7 @@
 
 import os, dotenv
 from flask import Flask, Blueprint, render_template, request, flash, redirect, url_for, send_file
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from cf_rules import Cloudflare
 
 dotenv.load_dotenv()
@@ -12,6 +13,16 @@ else:
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secret
+
+login_manager = LoginManager()
+login_manager.login_view = "profile"
+login_manager.init_app(app)
+
+class User(UserMixin):
+    id = None
+    email = None
+
+current_users: dict[str, User] = {}
 
 
 
@@ -61,11 +72,11 @@ def delete_file(filename=None):
 def index():
     rules = os.listdir(cf.utils.directory)
 
-    return render_template("index.jinja2", rules=rules)
+    return render_template("index.jinja2", user=current_user, rules=rules)
 
 @app.route("/profile")
 def profile():
-    return render_template("profile.jinja2")
+    return render_template("profile.jinja2", user=current_user)
 
 
 
@@ -73,6 +84,15 @@ auth = Blueprint("auth", __name__)
 
 def handle_auth(auth: dict, method: str):
     if auth["success"]:
+        user = User()
+        user.id = auth["result"]["id"]
+        if method == "key":
+            user.email = auth["result"]["email"]
+
+        login_user(user, remember=True)
+
+        current_users[user.id] = user
+
         return redirect(url_for("index"))
     else:
         if auth["errors"][0]["code"] == 6003:
@@ -100,6 +120,20 @@ def login_token():
     auth = cf.auth_token(token)
 
     return handle_auth(auth, "token")
+
+@auth.route("/logout", methods=["POST"])
+def logout():
+    del current_users[current_user.id]
+
+    logout_user()
+
+    return redirect(url_for("profile"))
+
+@login_manager.user_loader
+def load_user(user_id):
+    user = current_users.get(user_id)
+
+    return user
 
 
 

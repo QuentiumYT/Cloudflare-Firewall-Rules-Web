@@ -4,7 +4,21 @@
 
 {% block body %}
 
-<main class="flex-auto">
+<main class="flex-auto mt-8">
+    {% if user.is_active %}
+    <h2 class="text-center text-2xl">ID: {{ user.id }}</h2>
+    {% if user.email %}
+    <h2 class="text-center text-2xl">Email: {{ user.email }}</h2>
+    {% endif %}
+
+    <div class="flex justify-center">
+        <form action="{{ url_for('auth.logout') }}" method="POST">
+            <button class="!px-4 btn" type="submit">
+                Logout
+            </button>
+        </form>
+    </div>
+    {% else %}
     <div class="flex flex-col sm:flex-row items-center justify-center h-full">
         <div class="w-full max-w-sm">
             <form class="bg-white shadow-md rounded p-8" action="{{ url_for('auth.login_key') }}" method="POST">
@@ -82,6 +96,7 @@
             </form>
         </div>
     </div>
+    {% endif %}
 </main>
 
 {% endblock %}
