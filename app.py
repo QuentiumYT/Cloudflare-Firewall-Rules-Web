@@ -71,32 +71,35 @@ def profile():
 
 auth = Blueprint("auth", __name__)
 
+def handle_auth(auth: dict, method: str):
+    if auth["success"]:
+        return redirect(url_for("index"))
+    else:
+        if auth["errors"][0]["code"] == 6003:
+            error = auth["errors"][0]["error_chain"][0]["message"]
+        else:
+            error = auth["errors"][0]["message"]
+
+    flash(error, f"error_{method}")
+
+    return redirect(url_for("profile"))
+
 @auth.route("/login-key", methods=["POST"])
 def login_key():
     email = request.form.get("email")
     key = request.form.get("key")
 
-    print(email, key)
+    auth = cf.auth_key(email, key)
 
-    r = cf.auth_key(email, key)
-
-    if r["success"]:
-        return redirect(url_for("index"))
-
-    flash(r, "error_key")
-    return redirect(url_for("profile"))
+    return handle_auth(auth, "key")
 
 @auth.route("/login-token", methods=["POST"])
 def login_token():
     token = request.form.get("token")
 
-    r = cf.auth_token(token)
+    auth = cf.auth_token(token)
 
-    if r["success"]:
-        return redirect(url_for("index"))
-
-    flash(r, "error_token")
-    return redirect(url_for("profile"))
+    return handle_auth(auth, "token")
 
 
 
