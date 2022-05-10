@@ -21,6 +21,7 @@ login_manager.init_app(app)
 class User(UserMixin):
     id = None
     email = None
+    domains = None
 
 current_users: dict[str, User] = {}
 
@@ -107,7 +108,12 @@ def index():
     rules = os.listdir(cf.utils.directory)
 
     if current_user.is_authenticated:
-        domains = cf.domains
+        user = current_users[current_user.id]
+        if user.domains == None:
+            domains = cf.domains
+            user.domains = domains
+        else:
+            domains = user.domains
     else:
         domains = []
 
