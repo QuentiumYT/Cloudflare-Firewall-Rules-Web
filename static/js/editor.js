@@ -226,6 +226,15 @@ const updateInfos = (name, state) => {
     currentState.innerText = "(" + state + ")";
 };
 
+const sendRule = () => {
+    const name = cfeditor.currentFile;
+    if (name !== undefined && domainSelect.data.data.length > 0) {
+        document.getElementById("rule").value = name;
+        return true;
+    }
+    return false;
+};
+
 document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "s") {
         e.preventDefault();

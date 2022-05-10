@@ -3,3 +3,8 @@ let actionSelect = new SlimSelect({
 });
 
 actionSelect.set("");
+
+let domainSelect = new SlimSelect({
+    select: "#domain",
+    allowDeselectOption: true,
+});

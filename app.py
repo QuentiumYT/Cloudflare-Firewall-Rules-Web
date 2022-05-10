@@ -27,7 +27,7 @@ current_users: dict[str, User] = {}
 
 
 @app.route("/get-file/")
-@app.route("/get-file/<path:filename>")
+@app.route("/get-file/<path:filename>", methods=["GET"])
 def get_file(filename=None):
     if not filename:
         return {"error": "No file path provided"}, 400
@@ -65,6 +65,40 @@ def delete_file(filename=None):
 
     return {"success": "File deleted"}
 
+@app.route("/send-rule", methods=["POST"])
+def send_rule():
+    domains = request.form.getlist("domains")
+    action = request.form.get("action")
+    rule = request.form.get("rule")
+
+    if rule:
+        rule = rule.replace(".txt", "")
+    else:
+        flash("No rule provided", "danger")
+
+        return redirect(url_for("index"))
+
+    if not domains:
+        flash("No domains provided", "danger")
+
+        return redirect(url_for("index"))
+
+    if action == "create":
+        for domain in domains:
+            cf.create_rule(domain, rule, rule)
+
+        flash(f"Rule {rule} has been successfully created into {', '.join(domains)}.", "success")
+    elif action == "update":
+        for domain in domains:
+            cf.update_rule(domain, rule, rule)
+
+        flash(f"Rule {rule} has been successfully updated into {', '.join(domains)}.", "success")
+    else:
+        flash("No action was specified.", "danger")
+
+    return redirect(url_for("index"))
+
+
 
 @app.route("/")
 @app.route("/index")
@@ -72,7 +106,12 @@ def delete_file(filename=None):
 def index():
     rules = os.listdir(cf.utils.directory)
 
-    return render_template("index.jinja2", user=current_user, rules=rules)
+    if current_user.is_authenticated:
+        domains = cf.domains
+    else:
+        domains = []
+
+    return render_template("index.jinja2", user=current_user, rules=rules, domains=domains)
 
 @app.route("/profile")
 def profile():

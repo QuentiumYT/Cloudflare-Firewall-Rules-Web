@@ -20,7 +20,7 @@
             {% endfor %}
         </ul>
 
-        <button id="create" class="btn" onclick="createRule()">
+        <button id="create" class="!mt-10 btn" onclick="createRule()">
             <img src="{{ url_for('static', filename='img/plus.svg') }}" alt="User icon" class="m-2 w-10 h-10">
         </button>
     </aside>
@@ -37,10 +37,54 @@
 
         <div id="container" class="max-h-full h-96 border border-gray-light"></div>
 
-        <div class="flex">
+        <div class="flex my-8">
             <button id="save" class="btn w-36" onclick="saveRule()">Save locally</button>
             <button id="download" class="btn w-36" onclick="downloadRule()">Download as file</button>
             <button id="delete" class="btn w-36" onclick="deleteRule()">Delete locally</button>
+        </div>
+
+        <hr>
+
+        <div class="mt-4">
+            <h3 class="text-xl mb-4">Available Cloudflare domains</h3>
+
+            <p>Select the domains you want to do an action and click the corresponding button</p>
+
+            <p class="ml-4">- For example, if you wrote a new rule here, click "Create" to import it on all domains you have selected.</p>
+            <p class="ml-4">- If you modified a rule, just click "Update" to upload your change to the remote rule of your selected domains.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+            <div class="my-4">
+                {% for category, message in messages %}
+                <div class="bg-{{category}}-light border border-{{category}} text-{{category}}-dark px-4 py-3 rounded relative" role="success">
+                    {% if category == "success" %}
+                    <strong class="font-bold">Rule successfully imported into selected remote domains!</strong>
+                    {% else %}
+                    <strong class="font-bold">Error while importing the rule</strong>
+                    {% endif %}
+                    <br>
+                    <span class="block sm:inline">{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% endwith %}
+
+            <form class="flex" action="{{ url_for('send_rule') }}" method="POST" onsubmit="return sendRule()">
+                <select id="domain" name="domains" class="w-96 mt-8" multiple>
+                    {% for domain in domains %}
+                    <option value="{{ domain.name }}">{{ domain.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="hidden" id="rule" name="rule">
+
+                <button class="!my-8 btn" name="action" value="create">Create</button>
+                <button class="!my-8 btn" name="action" value="update">Update</button>
+            </form>
         </div>
     </section>
 
@@ -50,7 +94,7 @@
         <div class="mx-2">
             <div class="mb-4">
                 <p>Action:</p>
-                <select name="action" id="action">
+                <select id="action" class="w-[11.25rem]">
                     <option value="managed_challenge">Managed Challenge (Recommended)</option>
                     <option value="block">Block</option>
                     <option value="js_challenge">JS Challenge</option>
@@ -76,7 +120,7 @@
 
             <div class="mb-4">
                 <p>Priority:</p>
-                <input type="number" id="priority" value="" class="h-9 w-36 p-1.5 border border-gray-active rounded-md">
+                <input type="number" id="priority" value="" class="h-10 w-36 p-1.5 border border-gray-active rounded-md">
             </div>
         </div>
     </section>

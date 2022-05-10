@@ -3,7 +3,7 @@
 }
 
 .btn {
-    @apply text-white m-auto mt-8 p-2 bg-secondary rounded-md;
+    @apply text-white m-auto p-2 bg-secondary rounded-md;
 
     &:hover {
         @apply bg-secondary-dark;

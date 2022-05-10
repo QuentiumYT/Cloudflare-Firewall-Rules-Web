@@ -1,7 +1,9 @@
 .ss-main {
-    @apply w-[11.25rem];
-
     .ss-single-selected {
-        @apply h-9 border border-gray-common;
+        @apply min-h-[2.5rem] border border-gray-common;
+    }
+
+    .ss-multi-selected {
+        @apply min-h-[2.5rem] py-1 border border-gray-common;
     }
 }
