@@ -119,9 +119,15 @@ def index():
 
     return render_template("index.jinja2", user=current_user, rules=rules, domains=domains)
 
-@app.route("/profile")
+@app.route("/profile", methods=["GET", "POST"])
 def profile():
-    return render_template("profile.jinja2", user=current_user)
+    if request.method == "POST":
+        new_directory = request.form.get("directory")
+        cf.utils.change_directory(new_directory.strip("/"))
+
+    directory = cf.utils.directory
+
+    return render_template("profile.jinja2", user=current_user, directory=directory)
 
 
 

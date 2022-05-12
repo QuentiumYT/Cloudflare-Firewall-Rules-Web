@@ -4,22 +4,42 @@
 
 {% block body %}
 
-<main class="flex-auto mt-8">
+<main class="flex flex-col flex-auto h-full">
     {% if user.is_active %}
-    <h2 class="text-center text-2xl">ID: {{ user.id }}</h2>
-    {% if user.email %}
-    <h2 class="text-center text-2xl">Email: {{ user.email }}</h2>
-    {% endif %}
+    <h2 class="title mb-8">Profile</h2>
 
-    <div class="flex justify-center">
+    <section class="max-w-xl mx-auto">
+        <h3 class="text-lg">ID: {{ user.id }}</h3>
+        {% if user.email %}
+        <h3 class="text-lg">Email: {{ user.email }}</h3>
+        {% endif %}
+
         <form action="{{ url_for('auth.logout') }}" method="POST">
-            <button class="!px-4 btn" type="submit">
-                Logout
-            </button>
+            <div class="flex justify-center">
+                <button type="submit" class="btn !px-4 !my-4">
+                    Logout
+                </button>
+            </div>
         </form>
-    </div>
+    </section>
+
+    <h2 class="title mb-8">Settings</h2>
+
+    <section class="max-w-xl mx-auto">
+        <form action="{{ url_for('profile') }}" method="POST">
+            <label for="directory">Directory:</label>
+            <input type="text" name="directory" placeholder="Edit directory" value="{{ directory }}" class=" !w-full px-4 py-2 border rounded">
+            <div class="flex justify-center">
+                <button type="submit" class="btn !px-4 !my-4">
+                    Edit
+                </button>
+            </div>
+        </form>
+    </section>
     {% else %}
-    <div class="flex flex-col sm:flex-row items-center justify-center h-full">
+    <h2 class="title mb-8">Cloudflare authentication</h2>
+
+    <section class="flex flex-col sm:flex-row items-center justify-center h-full">
         <div class="w-full max-w-sm">
             <form class="bg-white shadow-md rounded p-8" action="{{ url_for('auth.login_key') }}" method="POST">
                 <div class="mb-4">
@@ -95,7 +115,7 @@
                 {% endwith %}
             </form>
         </div>
-    </div>
+    </section>
     {% endif %}
 </main>
 
