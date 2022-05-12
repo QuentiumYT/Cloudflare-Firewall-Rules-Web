@@ -46,7 +46,7 @@ def save_file(filename=None):
     if not filename:
         return {"error": "No file path provided"}, 400
 
-    with open("expressions/" + filename, "wb") as file:
+    with open(cf.utils.directory + "/" + filename, "wb") as file:
         file.write(request.data)
 
     return {"success": "File saved"}
