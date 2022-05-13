@@ -21,7 +21,7 @@
         </ul>
 
         <button id="create" class="!mt-10 btn" onclick="createRule()">
-            <img src="{{ url_for('static', filename='img/plus.svg') }}" alt="User icon" class="m-2 w-10 h-10">
+            <img src="{{ url_for('static', filename='img/plus.svg') }}" alt="Plus icon" class="m-2 w-10 h-10">
         </button>
     </aside>
 
@@ -58,11 +58,11 @@
             {% if messages %}
             <div class="my-4">
                 {% for category, message in messages %}
-                <div class="bg-{{category}}-light border border-{{category}} text-{{category}}-dark px-4 py-3 rounded relative" role="success">
+                <div class="bg-{{category}}-light border border-{{category}} text-{{category}}-dark p-4 mt-2 rounded relative" role="success">
                     {% if category == "success" %}
-                    <strong class="font-bold">Rule successfully imported into selected remote domains!</strong>
+                    <strong class="font-bold">Successfully executed the selected action!</strong>
                     {% else %}
-                    <strong class="font-bold">Error while importing the rule</strong>
+                    <strong class="font-bold">Error while executing the selected action :/</strong>
                     {% endif %}
                     <br>
                     <span class="block sm:inline">{{ message }}</span>
