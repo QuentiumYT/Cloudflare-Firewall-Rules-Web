@@ -101,6 +101,13 @@ def send_rule():
                 success[domain] = str(r)
             else:
                 failed[domain] = r["error"]
+    elif action == "delete":
+        for domain in domains:
+            r = cf.delete_rule(domain, rule)
+            if r == True:
+                success[domain] = str(r)
+            else:
+                failed[domain] = r["error"]
     else:
         flash("No action was specified.", "danger")
 
