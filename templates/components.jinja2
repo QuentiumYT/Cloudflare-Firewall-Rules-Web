@@ -1,0 +1,79 @@
+{% extends "base.jinja2" %}
+
+{% block title %}CFR Components{% endblock %}
+
+{% block link %}
+<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/slim-select/dist/slimselect.min.css') }}">
+{% endblock %}
+
+{% block body %}
+<h1 class="title">Components</h1>
+
+<p class="text-lg">This template only shows components used by this app and allow dynamic classes to be correctly rendered by tailwind (i.e. flash message boxes)</p>
+
+<h2 class="mt-4">Boxes</h2>
+
+<div class="bg-success-light border border-success text-success-dark p-4 w-96">
+    Hey
+</div>
+<br>
+<div class="bg-info-light border border-info text-info-dark p-4 w-96">
+    Hey
+</div>
+<br>
+<div class="bg-warning-light border border-warning text-warning-dark p-4 w-96">
+    Hey
+</div>
+<br>
+<div class="bg-danger-light border border-danger text-danger-dark p-4 w-96">
+    Hey
+</div>
+
+<h2 class="mt-4">Buttons</h2>
+
+<button class="btn !m-2 w-16">Hey</button>
+
+<img src="{{ url_for('static', filename='img/plus.svg') }}" class="btn !m-2 w-10 h-10">
+
+<h2 class="mt-4">Forms</h2>
+
+<select id="multi" class="!w-36" multiple>
+    <option value="a" selected>a</option>
+    <option value="b">b</option>
+    <option value="c">c</option>
+    <option value="d">d</option>
+</select>
+
+<br><br>
+
+<input type="number" id="priority" value="42" class="h-10 w-36 p-1.5 border border-gray-active rounded-md">
+
+<br><br>
+
+<label class="block cursor-pointer">
+    <div class="relative">
+        <input type="checkbox" class="sr-only">
+        <div class="line block bg-gray-inactive w-10 h-5 rounded-full border border-gray-active"></div>
+        <div class="dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition"></div>
+    </div>
+</label>
+
+<br>
+
+<label class="block cursor-pointer">
+    <div class="relative">
+        <input type="checkbox" checked class="sr-only">
+        <div class="line block bg-gray-inactive w-10 h-5 rounded-full border border-gray-active"></div>
+        <div class="dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition"></div>
+    </div>
+</label>
+
+<script type="text/javascript" src="{{ url_for('static', filename='node_modules/slim-select/dist/slimselect.min.js') }}"></script>
+<script defer>
+    new SlimSelect({
+        select: "#multi",
+        allowDeselectOption: true,
+        deselectLabel: "✘",
+    });
+</script>
+{% endblock %}

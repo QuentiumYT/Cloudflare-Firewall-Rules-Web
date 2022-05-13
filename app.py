@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os, dotenv
-from flask import Flask, Blueprint, render_template, request, flash, redirect, url_for, send_file
+from flask import Flask, Blueprint, render_template, request, abort, flash, redirect, url_for, send_file
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from cf_rules import Cloudflare
 
@@ -145,6 +145,13 @@ def profile():
     directory = cf.utils.directory
 
     return render_template("profile.jinja2", user=current_user, directory=directory)
+
+@app.route("/components")
+def components():
+    if app.debug:
+        return render_template("components.jinja2")
+    else:
+        abort(404)
 
 
 
