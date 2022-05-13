@@ -138,6 +138,10 @@ def profile():
         new_directory = request.form.get("directory")
         cf.utils.change_directory(new_directory.strip("/"))
 
+        if "refresh_domains" in request.form:
+            user = current_users[current_user.id]
+            user.domains = cf.domains
+
     directory = cf.utils.directory
 
     return render_template("profile.jinja2", user=current_user, directory=directory)

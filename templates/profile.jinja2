@@ -25,13 +25,21 @@
 
     <h2 class="title mb-8">Settings</h2>
 
-    <section class="max-w-xl mx-auto">
+    <section class="max-w-md mx-auto">
         <form action="{{ url_for('profile') }}" method="POST">
-            <label for="directory">Directory:</label>
-            <input type="text" name="directory" placeholder="Edit directory" value="{{ directory }}" class=" !w-full px-4 py-2 border rounded">
+            <label for="directory" class="text-lg">Directory:</label>
+            <input type="text" name="directory" placeholder="Edit directory" value="{{ directory }}" class="!w-full px-4 py-2 border rounded">
             <div class="flex justify-center">
                 <button type="submit" class="btn !px-4 !my-4">
                     Edit
+                </button>
+            </div>
+
+            <label for="directory" class="text-lg">Refresh domains:</label>
+            <p class="max-w-md">Note that once logged in, your available domains are cached, you can refresh them by clicking this button.</p>
+            <div class="flex justify-center">
+                <button type="submit" name="refresh_domains" class="btn !px-4 !my-4">
+                    Refresh
                 </button>
             </div>
         </form>
