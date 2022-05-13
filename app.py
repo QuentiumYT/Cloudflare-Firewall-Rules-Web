@@ -84,18 +84,31 @@ def send_rule():
 
         return redirect(url_for("index"))
 
+    # TODO return actual error if failed
+    success = {}
+    failed = {}
     if action == "create":
         for domain in domains:
-            cf.create_rule(domain, rule, rule)
-
-        flash(f"Rule {rule} has been successfully created into {', '.join(domains)}.", "success")
+            r = cf.create_rule(domain, rule, rule)
+            if r == True:
+                success[domain] = str(r)
+            else:
+                failed[domain] = r["error"]
     elif action == "update":
         for domain in domains:
-            cf.update_rule(domain, rule, rule)
-
-        flash(f"Rule {rule} has been successfully updated into {', '.join(domains)}.", "success")
+            r = cf.update_rule(domain, rule, rule)
+            if r == True:
+                success[domain] = str(r)
+            else:
+                failed[domain] = r["error"]
     else:
         flash("No action was specified.", "danger")
+
+    if success:
+        flash(f"Rule '{rule}' has been successfully {action}d in {', '.join(success.keys())}.", "success")
+    if failed:
+        error = "<br>- ".join([x + ": " + y for x, y in failed.items()])
+        flash(f"An issue ocurred when {action[:-1]}ing '{rule}' in {', '.join(failed.keys())}.<br>{error}", "warning")
 
     return redirect(url_for("index"))
 
