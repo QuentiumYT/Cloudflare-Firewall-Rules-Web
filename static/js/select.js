@@ -24,3 +24,14 @@ if (localStorage.getItem("domains")) {
     const domains = JSON.parse(localStorage.getItem("domains"));
     domainSelect.set(domains);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const select = domainSelect.slim.container.querySelector(".ss-multi-selected");
+    let remove = document.createElement("span");
+    remove.innerText = "🗑️";
+    select.appendChild(remove);
+
+    remove.addEventListener("click", () => {
+        domainSelect.set([]);
+    });
+});
