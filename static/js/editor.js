@@ -143,7 +143,7 @@ const loadRule = async (name) => {
     setEditorState("unloaded");
 };
 
-const saveRule = async () => {
+const saveRule = async (silent = false) => {
     let name = cfeditor.currentFile;
 
     if (name === undefined && cfeditor.getValue() !== "") {
@@ -152,12 +152,14 @@ const saveRule = async () => {
     }
 
     if (cfeditor.currentState === "loaded" && cfeditor.getValue() !== "") {
-        Swal.fire({
-            title: "No modifications",
-            text: "Nothing has changed in the file",
-            icon: "info",
-            timer: 800,
-        });
+        if (silent === false) {
+            Swal.fire({
+                title: "No modifications",
+                text: "Nothing has changed in the file",
+                icon: "info",
+                timer: 800,
+            });
+        }
     } else if (name !== undefined && cfeditor.getValue() !== "") {
         fetch("/save-file/" + name, {
             method: "POST",
@@ -165,12 +167,14 @@ const saveRule = async () => {
         })
             .then((response) => response.json())
             .then((data) => {
-                Swal.fire({
-                    title: "Saved",
-                    text: "Rule saved successfully",
-                    icon: "success",
-                    timer: 800,
-                });
+                if (silent === false) {
+                    Swal.fire({
+                        title: "Saved",
+                        text: "Rule saved successfully",
+                        icon: "success",
+                        timer: 800,
+                    });
+                }
 
                 cfeditor.isDeleted = false;
 
@@ -262,6 +266,7 @@ const deleteRule = async () => {
 };
 
 const sendRule = () => {
+    saveRule(true);
     const name = cfeditor.currentFile;
     if (name !== undefined && domainSelect.data.data.length > 0) {
         document.getElementById("rule").value = name;
