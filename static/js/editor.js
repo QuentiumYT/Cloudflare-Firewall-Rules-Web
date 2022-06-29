@@ -82,7 +82,7 @@ const loadRule = async (name) => {
             cfeditor.currentFile = name;
             cfeditor.setValue(text);
 
-            let header = processHeader(text.split("\n")[0]);
+            let header = processHeader(text.split(/\r?\n/g)[0]);
 
             if (header !== null) {
                 actionSelect.set(header.action);
