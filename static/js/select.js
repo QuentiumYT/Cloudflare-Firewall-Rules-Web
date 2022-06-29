@@ -1,5 +1,8 @@
 let actionSelect = new SlimSelect({
     select: "#action",
+    beforeOnChange: (selected) => {
+        changeHeader("action", selected.value);
+    }
 });
 
 actionSelect.set("");

@@ -1,11 +1,37 @@
-const processHeader = (headerLine) => {
+const currentFile = document.getElementById("current-file");
+const currentState = document.getElementById("current-state");
+
+const updateInfos = (name, state) => {
+    currentFile.innerText = name;
+    currentState.innerText = "(" + state + ")";
+};
+
+const pausedOption = document.getElementById("paused");
+const priorityOption = document.getElementById("priority");
+
+const changeHeader = (key, value) => {
+    const codeValue = cfeditor.getValue();
+    const firstLine = codeValue.split(/\r?\n/g)[0];
+    const header = parseHeader(firstLine);
+
+    if (header !== null) {
+        header[key] = value;
+        let re = new RegExp(key + ":([^\\s]+)");
+        let newHeader = firstLine.replace(re, key + ":" + header[key]);
+        cfeditor.setValue(newHeader + codeValue.substring(firstLine.length + 1));
+    }
+};
+
+const parseHeader = (headerLine) => {
     if (headerLine.startsWith("#!") && headerLine.endsWith("!#")) {
         headerLine = headerLine.substring(2);
         headerLine = headerLine.substring(0, headerLine.length - 2);
 
         let header = headerLine.split(" ").reduce((obj, item) => {
             let [key, value] = item.split(":");
-            obj[key] = value;
+            if (value !== undefined) {
+                obj[key] = value;
+            }
             return obj;
         }, {});
         return header;
@@ -46,8 +72,8 @@ const askName = async () => {
 const createRule = async () => {
     if (cfeditor.isCreated === true) {
         actionSelect.set("");
-        document.getElementById("paused").checked = false;
-        document.getElementById("priority").value = "";
+        pausedOption.checked = false;
+        priorityOption.value = "";
 
         cfeditor.setValue("# enter your cloudflare rules here");
     } else {
@@ -82,16 +108,16 @@ const loadRule = async (name) => {
             cfeditor.currentFile = name;
             cfeditor.setValue(text);
 
-            let header = processHeader(text.split(/\r?\n/g)[0]);
+            let header = parseHeader(text.split(/\r?\n/g)[0]);
 
             if (header !== null) {
                 actionSelect.set(header.action);
-                document.getElementById("paused").checked = header.paused === "False";
-                document.getElementById("priority").value = header.priority;
+                pausedOption.checked = header.paused === "False";
+                priorityOption.value = header.priority;
             } else {
                 actionSelect.set("");
-                document.getElementById("paused").checked = false;
-                document.getElementById("priority").value = "";
+                pausedOption.checked = false;
+                priorityOption.value = "";
             }
         });
 
@@ -218,14 +244,6 @@ const deleteRule = async () => {
     }
 };
 
-const currentFile = document.getElementById("current-file");
-const currentState = document.getElementById("current-state");
-
-const updateInfos = (name, state) => {
-    currentFile.innerText = name;
-    currentState.innerText = "(" + state + ")";
-};
-
 const sendRule = () => {
     const name = cfeditor.currentFile;
     if (name !== undefined && domainSelect.data.data.length > 0) {
@@ -240,4 +258,12 @@ document.addEventListener("keydown", (e) => {
         e.preventDefault();
         saveRule(cfeditor.currentFile);
     }
+});
+
+pausedOption.addEventListener("change", (e) => {
+    changeHeader("paused", e.target.checked ? "False" : "True");
+});
+
+priorityOption.addEventListener("change", (e) => {
+    changeHeader("priority", e.target.value);
 });
