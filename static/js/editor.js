@@ -17,17 +17,26 @@ const changeHeader = (key, value) => {
 
     if (header !== null) {
         header[key] = value;
-        let re = new RegExp(key + ":([^\\s]+)");
-        let newHeader = firstLine.replace(re, key + ":" + header[key]);
+        let newHeader = generateHeader(header);
         // Fix when header is created and number of real lines is 1
         if (lines.length <= 3) {
             newHeader = newHeader + "\n";
         }
         cfeditor.setValue(newHeader + codeValue.substring(firstLine.length + 1));
     } else {
-        cfeditor.setValue("#! " + key + ":" + value + " !#\n" + codeValue);
+        let newHeader = {};
+        newHeader[key] = value;
+        cfeditor.setValue(generateHeader(newHeader) + "\n" + codeValue);
     }
     cfeditor.currentState = "edited";
+};
+
+const generateHeader = (obj) => {
+    let header = " ";
+    for (let key in obj) {
+        header += key + ":" + obj[key] + " ";
+    }
+    return "#!" + header + "!#";
 };
 
 const parseHeader = (headerLine) => {
