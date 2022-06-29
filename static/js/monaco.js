@@ -1,10 +1,8 @@
 var cfeditor = window.cfeditor || {};
 
 let setEditorState = function (state) {
-    let prevState = cfeditor.currentState;
     cfeditor.currentState = state;
     updateInfos(cfeditor.currentFile, cfeditor.currentState);
-    // console.log(prevState + " -> " + state);
 };
 
 require.config({
@@ -125,7 +123,9 @@ require(["vs/editor/editor.main"], () => {
         },
     });
 
-    cfeditor = monaco.editor.create(document.getElementById("container"), {
+    const editorContainer = document.getElementById("container");
+
+    cfeditor = monaco.editor.create(editorContainer, {
         theme: "cf-rule",
         language: "cf-rule",
         scrollBeyondLastLine: false,
@@ -144,5 +144,17 @@ require(["vs/editor/editor.main"], () => {
         } else if (cfeditor.currentState === "loaded") {
             setEditorState("edited");
         }
+    });
+
+    window.addEventListener("resize", () => {
+        // make editor as small as possible
+        cfeditor.layout({ width: 0, height: 0 });
+
+        // wait for next frame to ensure last layout finished
+        window.requestAnimationFrame(() => {
+            // get the parent dimensions and re-layout the editor
+            const rect = editorContainer.parentElement.getBoundingClientRect();
+            cfeditor.layout({ width: rect.width, height: 384 });
+        });
     });
 });
