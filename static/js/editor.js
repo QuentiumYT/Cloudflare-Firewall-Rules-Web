@@ -11,15 +11,23 @@ const priorityOption = document.getElementById("priority");
 
 const changeHeader = (key, value) => {
     const codeValue = cfeditor.getValue();
-    const firstLine = codeValue.split(/\r?\n/g)[0];
+    const lines = codeValue.split(/\r?\n/g);
+    const firstLine = lines[0];
     const header = parseHeader(firstLine);
 
     if (header !== null) {
         header[key] = value;
         let re = new RegExp(key + ":([^\\s]+)");
         let newHeader = firstLine.replace(re, key + ":" + header[key]);
+        // Fix when header is created and number of real lines is 1
+        if (lines.length <= 3) {
+            newHeader = newHeader + "\n";
+        }
         cfeditor.setValue(newHeader + codeValue.substring(firstLine.length + 1));
+    } else {
+        cfeditor.setValue("#! " + key + ":" + value + " !#\n" + codeValue);
     }
+    cfeditor.currentState = "edited";
 };
 
 const parseHeader = (headerLine) => {
