@@ -1,4 +1,4 @@
-flask~=2.1.0
-flask_login~=0.6.0
-python-dotenv~=0.20.0
-cf_rules~=1.2.0
+flask~=2.1
+flask_login~=0.6
+python-dotenv~=0.20
+cf-rules~=1.3

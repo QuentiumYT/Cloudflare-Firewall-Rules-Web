@@ -23,10 +23,26 @@ If you have some rules that you want to duplicate among your domains, this websi
 ```bash
 git clone https://github.com/QuentiumYT/Cloudflare-Firewall-Rules-Web.git
 cd Cloudflare-Firewall-Rules-Web/
+# Install Python requirements
 pip install -r requirements.txt
+# Install dev dependencies (css related)
+npm install
+# Install web dependencies
+cd static/ && npm install
 ```
 
 ## 🚀 Usage
+
+```bash
+# Build CSS
+npm run build
+# Run Flask app
+python app.py
+```
+
+You can now navigate to [127.0.0.1:5502](http://127.0.0.1:5502)
+
+---
 
 Create and edit rules using the online editor
 
