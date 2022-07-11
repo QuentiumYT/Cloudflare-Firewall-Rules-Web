@@ -25,9 +25,14 @@
             {% endif %}
         </ul>
 
-        <button id="create" class="!my-10 btn" onclick="createRule()">
-            <img src="{{ url_for('static', filename='img/plus.svg') }}" alt="Plus icon" class="m-2 w-10 h-10">
-        </button>
+        <div class="flex justify-evenly my-6">
+            <button id="create" class="btn !m-0" onclick="createRule()">
+                <img src="{{ url_for('static', filename='img/plus.svg') }}" alt="Plus icon" class="p-2 w-16 h-16">
+            </button>
+            <button id="create" class="btn !m-0" onclick="importRule()">
+                <img src="{{ url_for('static', filename='img/import.svg') }}" alt="Import icon" class="p-2 w-16 h-16">
+            </button>
+        </div>
     </aside>
 
     <section class="flex flex-col flex-1 -lg:order-1">

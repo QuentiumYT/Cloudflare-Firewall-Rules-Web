@@ -11,3 +11,7 @@
 body.swal2-height-auto {
     @apply h-screen !important;
 }
+
+.swal2-select {
+    @apply border border-gray-common rounded-md;
+}

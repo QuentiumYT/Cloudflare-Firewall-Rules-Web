@@ -90,21 +90,21 @@ def send_rule():
     if action == "create":
         for domain in domains:
             r = cf.create_rule(domain, rule, rule)
-            if r == True:
+            if r:
                 success[domain] = str(r)
             else:
                 failed[domain] = r["error"]
     elif action == "update":
         for domain in domains:
             r = cf.update_rule(domain, rule, rule)
-            if r == True:
+            if r:
                 success[domain] = str(r)
             else:
                 failed[domain] = r["error"]
     elif action == "delete":
         for domain in domains:
             r = cf.delete_rule(domain, rule)
-            if r == True:
+            if r:
                 success[domain] = str(r)
             else:
                 failed[domain] = r["error"]
@@ -118,6 +118,27 @@ def send_rule():
         flash(f"An issue ocurred when {action[:-1]}ing '{rule}' in {', '.join(failed.keys())}.<br>{error}", "warning")
 
     return redirect(url_for("index"))
+
+@app.route("/list-domains")
+def list_domains():
+    return {"domains": current_user.domains}
+
+@app.route("/list-rules")
+@app.route("/list-rules/<domain>")
+def list_rules(domain=None):
+    if not domain:
+        return {"error": "No domain provided"}, 400
+
+    return {"rules": cf.rules(domain)}
+
+@app.route("/import-rule", methods=["POST"])
+def import_rule():
+    domain = request.form.get("domain")
+    rule = request.form.get("rule")
+
+    cf.export_rule(domain, rule)
+
+    return {"success": "Rule imported successfully"}
 
 
 

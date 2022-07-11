@@ -130,7 +130,7 @@ const loadRule = async (name) => {
             if (header !== null) {
                 actionSelect.set(header.action);
                 pausedOption.checked = header.paused === "False";
-                priorityOption.value = header.priority;
+                priorityOption.value = header.priority | "";
             } else {
                 actionSelect.set("");
                 pausedOption.checked = false;
@@ -275,10 +275,86 @@ const sendRule = () => {
     return false;
 };
 
+const importRule = async () => {
+    fetch("/list-domains")
+        .then((response) => response.json())
+        .then((data) => {
+            const domains = Object.fromEntries(
+                data.domains.map((domain) => [domain.name, domain.name])
+            );
+
+            Swal.fire({
+                title: "Domains",
+                text: "Select a domain to list its rules",
+                input: "select",
+                inputOptions: domains,
+                inputPlaceholder: "Select a domain",
+                confirmButtonColor: "#0051c3",
+                showLoaderOnConfirm: true,
+                backdrop: true,
+                preConfirm: async (domain) => {
+                    const response = await fetch("/list-rules/" + domain);
+                    const data = await response.json();
+                    data.domain = domain;
+                    return data;
+                },
+                inputValidator: (value) => {
+                    if (!value) {
+                        return "You need to select a domain";
+                    }
+                },
+                allowOutsideClick: () => !Swal.isLoading(),
+            })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        const domain = result.value.domain;
+                        const rules = Object.fromEntries(
+                            result.value.rules.map((rule) => [rule.description, rule.description])
+                        );
+
+                        Swal.fire({
+                            title: domain + "'s rules",
+                            text: "Select a rule to import",
+                            input: "select",
+                            inputOptions: rules,
+                            inputPlaceholder: "Select a rule",
+                            confirmButtonColor: "#0051c3",
+                            showLoaderOnConfirm: true,
+                            backdrop: true,
+                            preConfirm: async (rule) => {
+                                let formData = new FormData();
+                                formData.append("domain", domain);
+                                formData.append("rule", rule);
+
+                                const response = await fetch("/import-rule", {
+                                    method: "POST",
+                                    body: formData,
+                                });
+                                const data = await response.json();
+                                data.rule = rule.replace("/", "_");
+                                return data;
+                            },
+                            inputValidator: (value) => {
+                                if (!value) {
+                                    return "You need to select a rule";
+                                }
+                            },
+                            allowOutsideClick: () => !Swal.isLoading(),
+                        })
+                            .then((result) => {
+                                if (result.isConfirmed) {
+                                    loadRule(result.value.rule + ".txt");
+                                }
+                            });
+                    }
+                });
+        });
+};
+
 document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "s") {
         e.preventDefault();
-        saveRule(cfeditor.currentFile);
+        saveRule(true);
     }
 });
 
