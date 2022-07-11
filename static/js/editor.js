@@ -279,6 +279,18 @@ const importRule = async () => {
     fetch("/list-domains")
         .then((response) => response.json())
         .then((data) => {
+            if (!data.success) {
+                return Swal.fire({
+                    title: "Error",
+                    // text: "Error getting domains: " + data.error,
+                    html:
+                        "Error getting domains: " + data.error +
+                        "<br><br>" +
+                        "Please login to list your domains <a href='/profile' class='text-secondary'>here</a>.",
+                    icon: "error",
+                });
+            }
+
             const domains = Object.fromEntries(
                 data.domains.map((domain) => [domain.name, domain.name])
             );

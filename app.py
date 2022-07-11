@@ -121,11 +121,17 @@ def send_rule():
 
 @app.route("/list-domains")
 def list_domains():
+    if not current_user.is_authenticated:
+        return {"error": "Not logged in"}, 400
+
     return {"domains": current_user.domains}
 
 @app.route("/list-rules")
 @app.route("/list-rules/<domain>")
 def list_rules(domain=None):
+    if not current_user.is_authenticated:
+        return {"error": "Not logged in"}, 400
+
     if not domain:
         return {"error": "No domain provided"}, 400
 
