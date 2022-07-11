@@ -7,3 +7,7 @@
         @apply min-h-[2.5rem] py-1 border border-gray-common;
     }
 }
+
+body.swal2-height-auto {
+    @apply h-screen !important;
+}
