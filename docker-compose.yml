@@ -1,0 +1,25 @@
+version: "3"
+services:
+  web:
+    container_name: cfr_web
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - SERVERNAME=cfr.loc
+    volumes:
+      - ./expressions/:/var/www/web/expressions/
+    networks:
+      default:
+        ipv4_address: 172.200.0.2
+    extra_hosts:
+      - "cfr.loc:172.200.0.2"
+    tty: true
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.200.0.0/24
+          gateway: 172.200.0.1

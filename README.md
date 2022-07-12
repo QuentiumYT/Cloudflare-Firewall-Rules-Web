@@ -42,6 +42,19 @@ python app.py
 
 You can now navigate to [127.0.0.1:5502](http://127.0.0.1:5502)
 
+## 🐳 Docker usage
+
+Edit the docker-compose file if needed
+
+```bash
+# Build the container
+docker-compose up -d --build
+```
+
+You can now navigate to [172.200.0.2](http://172.200.0.2)
+
+You can also add `172.200.0.2 cfr.loc` to your `/etc/hosts` ([cfr.loc](http://cfr.loc/))
+
 ---
 
 Create and edit rules using the online editor

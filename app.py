@@ -25,6 +25,10 @@ class User(UserMixin):
 
 current_users: dict[str, User] = {}
 
+is_docker = os.getcwd() == "/"
+if is_docker:
+    os.chdir("/var/www/web/")
+
 
 
 @app.route("/get-file/")
@@ -252,5 +256,5 @@ if __name__ == "__main__":
     app.register_blueprint(auth)
 
     app.run(host="0.0.0.0",
-            port=5502,
+            port=80 if is_docker else 5502,
             debug=True)
