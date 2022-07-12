@@ -29,6 +29,9 @@ is_docker = os.getcwd() == "/"
 if is_docker:
     os.chdir("/var/www/web/")
 
+is_login_key = os.environ.get("CF_EMAIL") and os.environ.get("CF_API_KEY")
+is_login_token = os.environ.get("CF_API_TOKEN")
+
 
 
 @app.route("/get-file/")
@@ -88,7 +91,6 @@ def send_rule():
 
         return redirect(url_for("index"))
 
-    # TODO return actual error if failed
     success = {}
     failed = {}
     if action == "create":
@@ -172,6 +174,23 @@ def index():
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
+    # Autologin with key or token
+    if os.environ.get("AUTOLOGIN") == "true":
+        if is_login_key:
+            auth = cf.auth_key(os.environ.get("CF_EMAIL"), os.environ.get("CF_API_KEY"))
+
+            with app.app_context():
+                handle_auth(auth, "key")
+
+        elif is_login_token:
+            auth = cf.auth_token(os.environ.get("CF_API_TOKEN"))
+
+            with app.app_context():
+                handle_auth(auth, "token")
+
+        if os.environ.get("CUSTOM_DEFAULT_FOLDER"):
+            cf.utils.change_directory(str(os.environ.get("CUSTOM_DEFAULT_FOLDER")))
+
     if request.method == "POST":
         new_directory = request.form.get("directory")
         cf.utils.change_directory(new_directory.strip("/"))
@@ -251,7 +270,7 @@ def load_user(user_id):
 
 
 if __name__ == "__main__":
-    cf = Cloudflare()
+    cf = Cloudflare(str(os.environ.get("CUSTOM_DEFAULT_FOLDER")) or None)
 
     app.register_blueprint(auth)
 
