@@ -29,6 +29,9 @@ is_docker = os.getcwd() == "/"
 if is_docker:
     os.chdir("/var/www/web/")
 
+is_login_key = os.environ.get("CF_EMAIL") and os.environ.get("CF_API_KEY")
+is_login_token = os.environ.get("CF_API_TOKEN")
+
 
 
 @app.route("/get-file/")
@@ -88,7 +91,6 @@ def send_rule():
 
         return redirect(url_for("index"))
 
-    # TODO return actual error if failed
     success = {}
     failed = {}
     if action == "create":
@@ -172,6 +174,24 @@ def index():
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
+    # Autologin if app started and private usage
+    if len(current_users) == 0:
+        if is_login_key:
+            auth = cf.auth_key(os.environ.get("CF_EMAIL"), os.environ.get("CF_API_KEY"))
+
+            with app.app_context():
+                handle_auth(auth, "key")
+
+        elif is_login_token:
+            auth = cf.auth_token(os.environ.get("CF_API_TOKEN"))
+
+            with app.app_context():
+                handle_auth(auth, "token")
+
+        cf.utils.change_directory("expressions_ug")
+
+        return redirect(url_for("index"))
+
     if request.method == "POST":
         new_directory = request.form.get("directory")
         cf.utils.change_directory(new_directory.strip("/"))
