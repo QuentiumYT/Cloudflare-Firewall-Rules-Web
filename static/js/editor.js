@@ -279,10 +279,9 @@ const importRule = async () => {
     fetch("/list-domains")
         .then((response) => response.json())
         .then((data) => {
-            if (!data.success) {
+            if (!data.domains) {
                 return Swal.fire({
                     title: "Error",
-                    // text: "Error getting domains: " + data.error,
                     html:
                         "Error getting domains: " + data.error +
                         "<br><br>" +
