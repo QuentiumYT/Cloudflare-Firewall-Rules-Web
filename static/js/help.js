@@ -1,7 +1,7 @@
 const helpKey = document.getElementById("help_key");
 const helpToken = document.getElementById("help_token");
 
-helpKey.addEventListener("click", () => {
+helpKey?.addEventListener("click", () => {
     Swal.fire({
         title: "How to get a Cloudflare Global API Key",
         width: 800,
@@ -15,7 +15,7 @@ helpKey.addEventListener("click", () => {
     });
 });
 
-helpToken.addEventListener("click", () => {
+helpToken?.addEventListener("click", () => {
     Swal.fire({
         title: "How to generate a Cloudflare API token",
         width: 800,

@@ -30,6 +30,8 @@ cf: Cloudflare = None
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secret
 
+bp = Blueprint("auth", __name__)
+
 login_manager = LoginManager()
 login_manager.login_view = "profile"
 login_manager.init_app(app)
@@ -173,6 +175,23 @@ def import_rule():
 @app.route("/index")
 @app.route("/home")
 def index():
+    # Autologin with key or token
+    if os.environ.get("AUTOLOGIN") == "true" and not current_user.is_authenticated:
+        if is_login_key:
+            auth = cf.auth_key(os.environ.get("CF_EMAIL"), os.environ.get("CF_API_KEY"))
+
+            with app.app_context():
+                handle_auth(auth, "key")
+
+        elif is_login_token:
+            auth = cf.auth_token(os.environ.get("CF_API_TOKEN"))
+
+            with app.app_context():
+                handle_auth(auth, "token")
+
+    if os.environ.get("CUSTOM_DEFAULT_FOLDER") and os.environ.get("CUSTOM_DEFAULT_FOLDER") != cf.utils.directory:
+        cf.utils.change_directory(str(os.environ.get("CUSTOM_DEFAULT_FOLDER")))
+
     rules = os.listdir(cf.utils.directory)
 
     if current_user.is_authenticated:
@@ -189,23 +208,6 @@ def index():
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
-    # Autologin with key or token
-    if os.environ.get("AUTOLOGIN") == "true":
-        if is_login_key:
-            auth = cf.auth_key(os.environ.get("CF_EMAIL"), os.environ.get("CF_API_KEY"))
-
-            with app.app_context():
-                handle_auth(auth, "key")
-
-        elif is_login_token:
-            auth = cf.auth_token(os.environ.get("CF_API_TOKEN"))
-
-            with app.app_context():
-                handle_auth(auth, "token")
-
-        if os.environ.get("CUSTOM_DEFAULT_FOLDER"):
-            cf.utils.change_directory(str(os.environ.get("CUSTOM_DEFAULT_FOLDER")))
-
     if request.method == "POST":
         new_directory = request.form.get("directory")
         cf.utils.change_directory(new_directory.strip("/"))
@@ -220,14 +222,9 @@ def profile():
 
 @app.route("/components")
 def components():
-    if app.debug:
-        return render_template("components.jinja2")
-    else:
-        abort(404)
+    return render_template("components.jinja2") if app.debug else abort(404)
 
 
-
-auth = Blueprint("auth", __name__)
 
 def handle_auth(auth: dict, method: str):
     if auth["success"]:
@@ -249,7 +246,7 @@ def handle_auth(auth: dict, method: str):
 
     return redirect(url_for("profile"))
 
-@auth.route("/login-key", methods=["POST"])
+@bp.route("/login-key", methods=["POST"])
 def login_key():
     email = request.form.get("email")
     key = request.form.get("key")
@@ -258,7 +255,7 @@ def login_key():
 
     return handle_auth(auth, "key")
 
-@auth.route("/login-token", methods=["POST"])
+@bp.route("/login-token", methods=["POST"])
 def login_token():
     token = request.form.get("token")
 
@@ -266,7 +263,7 @@ def login_token():
 
     return handle_auth(auth, "token")
 
-@auth.route("/logout", methods=["POST"])
+@bp.route("/logout", methods=["POST"])
 def logout():
     del current_users[current_user.id]
 
@@ -283,7 +280,7 @@ def load_user(user_id):
 if __name__ == "__main__":
     cf = Cloudflare(os.environ.get("CUSTOM_DEFAULT_FOLDER"))
 
-    app.register_blueprint(auth)
+    app.register_blueprint(bp)
 
     app.run(host="0.0.0.0",
             port=80 if is_docker else 5502,
