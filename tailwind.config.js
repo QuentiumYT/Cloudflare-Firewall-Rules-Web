@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: ["./templates/**/*.jinja2"],
   theme: {
     extend: {
@@ -36,17 +36,29 @@ module.exports = {
           dark: "#8d0d01",
         },
       },
-      boxShadow: {
-        drop: "0 10px 30px 0 rgba(0, 0, 0, 0.1)",
-      },
       screens: {
+        // Base responsive
+        'xs': { min: '360px' },
+        'sm': { min: '640px' },
+        'md': { min: '768px' },
+        'lg': { min: '1024px' },
+        'xl': { min: '1280px' },
+        '2xl': { min: '1536px' },
+        // Reverse responsive
         '-2xl': { max: '1535px' },
         '-xl': { max: '1279px' },
         '-lg': { max: '1023px' },
         '-md': { max: '767px' },
         '-sm': { max: '639px' },
+        '-xs': { max: '359px' },
+        // Between responsive
+        'b-xs': { min: '360px', max: '639px' },
+        'b-sm': { min: '640px', max: '767px' },
+        'b-md': { min: '768px', max: '1023px' },
+        'b-lg': { min: '1024px', max: '1279px' },
+        'b-xl': { min: '1280px', max: '1535px' },
+        'b-2xl': { min: '1536px' },
       },
     },
   },
-  plugins: [],
 };
