@@ -1,15 +1,31 @@
 #!/usr/bin/env python
 
-import os, dotenv
-from flask import Flask, Blueprint, render_template, request, abort, flash, redirect, url_for, send_file
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+import os
+
+import dotenv
 from cf_rules import Cloudflare
+from flask import (
+    Blueprint,
+    Flask,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    url_for,
+)
+from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user
+
+# pylint: disable=redefined-outer-name
 
 dotenv.load_dotenv()
 if os.environ.get("FLASK_SECRET"):
     secret = os.environ.get("FLASK_SECRET")
 else:
     secret = os.urandom(12).hex()
+
+cf: Cloudflare = None
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secret
@@ -77,11 +93,10 @@ def delete_file(filename=None):
 def send_rule():
     domains = request.form.getlist("domains")
     action = request.form.get("action")
-    rule = request.form.get("rule")
+    rule_file = request.form.get("rule")
+    rule_name = rule_file.strip(".txt")
 
-    if rule:
-        rule = rule.replace(".txt", "")
-    else:
+    if not rule_file:
         flash("No rule provided", "danger")
 
         return redirect(url_for("index"))
@@ -95,21 +110,21 @@ def send_rule():
     failed = {}
     if action == "create":
         for domain in domains:
-            r = cf.create_rule(domain, rule, rule)
+            r = cf.create_rule(domain, rule_file)
             if r:
                 success[domain] = str(r)
             else:
                 failed[domain] = r["error"]
     elif action == "update":
         for domain in domains:
-            r = cf.update_rule(domain, rule, rule)
+            r = cf.update_rule(domain, rule_file)
             if r:
                 success[domain] = str(r)
             else:
                 failed[domain] = r["error"]
     elif action == "delete":
         for domain in domains:
-            r = cf.delete_rule(domain, rule)
+            r = cf.delete_rule(domain, rule_name)
             if r:
                 success[domain] = str(r)
             else:
@@ -118,10 +133,10 @@ def send_rule():
         flash("No action was specified.", "danger")
 
     if success:
-        flash(f"Rule '{rule}' has been successfully {action}d in {', '.join(success.keys())}.", "success")
+        flash(f"Rule '{rule_name}' has been successfully {action}d in {', '.join(success.keys())}.", "success")
     if failed:
         error = "<br>- ".join([x + ": " + y for x, y in failed.items()])
-        flash(f"An issue ocurred when {action[:-1]}ing '{rule}' in {', '.join(failed.keys())}.<br>{error}", "warning")
+        flash(f"An issue ocurred when {action[:-1]}ing '{rule_name}' in {', '.join(failed.keys())}.<br>{error}", "warning")
 
     return redirect(url_for("index"))
 
@@ -148,7 +163,7 @@ def import_rule():
     domain = request.form.get("domain")
     rule = request.form.get("rule")
 
-    cf.export_rule(domain, rule)
+    cf.export_rule(domain, rule_name=rule)
 
     return {"success": "Rule imported successfully"}
 
@@ -162,7 +177,7 @@ def index():
 
     if current_user.is_authenticated:
         user = current_users[current_user.id]
-        if user.domains == None:
+        if not user.domains:
             domains = cf.domains
             user.domains = domains
         else:
@@ -216,6 +231,7 @@ auth = Blueprint("auth", __name__)
 
 def handle_auth(auth: dict, method: str):
     if auth["success"]:
+        # sourcery skip: extract-method
         user = User()
         user.id = auth["result"]["id"]
         if method == "key":
@@ -226,11 +242,8 @@ def handle_auth(auth: dict, method: str):
         current_users[user.id] = user
 
         return redirect(url_for("index"))
-    else:
-        if auth["errors"][0]["code"] == 6003:
-            error = auth["errors"][0]["error_chain"][0]["message"]
-        else:
-            error = auth["errors"][0]["message"]
+
+    error = auth["errors"][0]["message"]
 
     flash(error, f"error_{method}")
 
@@ -263,14 +276,12 @@ def logout():
 
 @login_manager.user_loader
 def load_user(user_id):
-    user = current_users.get(user_id)
-
-    return user
+    return current_users.get(user_id)
 
 
 
 if __name__ == "__main__":
-    cf = Cloudflare(str(os.environ.get("CUSTOM_DEFAULT_FOLDER")) or None)
+    cf = Cloudflare(os.environ.get("CUSTOM_DEFAULT_FOLDER"))
 
     app.register_blueprint(auth)
 
