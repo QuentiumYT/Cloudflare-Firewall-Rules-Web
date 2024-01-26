@@ -2,7 +2,7 @@
 # Stage 1: Generate styles & modules for the application
 ################################################################################
 
-FROM node:16-alpine as build_app
+FROM node:20-alpine as build_app
 
 ENV WORKDIR=/usr/src
 RUN mkdir -p $WORKDIR
@@ -24,11 +24,13 @@ RUN rm -rf $WORKDIR/node_modules/
 # Stage 2: Run the Flask application
 ################################################################################
 
-FROM python:3.10
+FROM python:3.12-alpine
 
 # Install tools
-RUN apt-get update && \
-    apt-get install -y nano
+RUN apk add \
+    bash \
+    curl \
+    nano
 
 # Add build app
 COPY --from=build_app /usr/src/ /var/www/web/
@@ -37,6 +39,8 @@ COPY --from=build_app /usr/src/ /var/www/web/
 COPY requirements.txt /root/python/requirements.txt
 RUN pip install --upgrade -r /root/python/requirements.txt
 
+RUN chmod +x /var/www/web/app.py
+
 # Expose 80, 443 ports
 EXPOSE 80 443
-CMD ["/var/www/web/app.py"]
+CMD ["python3", "/var/www/web/app.py"]
