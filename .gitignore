@@ -1,26 +1,40 @@
-# IDE
+# IDE / Editor
 .idea/
 .vscode/
 
-# Node modules
-node_modules/
-
 # Environments
 .env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
 
-# Windows file
-desktop.ini
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
+# Package managers
+.npm/
+.yarn/
+.pnp/
+
+# Dependency directories
+node_modules/
+bower_components/
+jspm_packages/
+web_modules/
+
+# Build output
+dist/
+build/
+
+# Static compiled files
 static/css/*
+
+# File systems
+.DS_Store
+Thumbs.db
 
 # User expressions
 expressions_*/
-
-# Perso
-+extra/
