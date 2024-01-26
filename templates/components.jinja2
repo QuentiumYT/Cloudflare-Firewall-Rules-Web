@@ -3,7 +3,7 @@
 {% block title %}CFR Components{% endblock %}
 
 {% block link %}
-<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/slim-select/dist/slimselect.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/slim-select/dist/slimselect.css') }}">
 {% endblock %}
 
 {% block body %}
@@ -46,10 +46,6 @@
 
 <br><br>
 
-<input type="number" id="priority" value="42" class="h-10 w-36 p-1.5 border border-gray-active rounded-md">
-
-<br><br>
-
 <label class="block cursor-pointer">
     <div class="relative">
         <input type="checkbox" class="sr-only">
@@ -72,8 +68,9 @@
 <script defer>
     new SlimSelect({
         select: "#multi",
-        allowDeselectOption: true,
-        deselectLabel: "✘",
+        settings: {
+            allowDeselect: true,
+        },
     });
 </script>
 {% endblock %}

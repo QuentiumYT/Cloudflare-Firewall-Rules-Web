@@ -1,4 +1,4 @@
-var cfeditor = window.cfeditor || {};
+let cfeditor = window.cfeditor || {};
 
 let setEditorState = function (state) {
     cfeditor.currentState = state;
@@ -98,7 +98,7 @@ require(["vs/editor/editor.main"], () => {
 
     monaco.languages.registerCompletionItemProvider("cf-rule", {
         provideCompletionItems: () => {
-            var suggestions = [
+            const suggestions = [
                 ...text.map((text) => ({
                     label: text,
                     kind: monaco.languages.CompletionItemKind.Text,
@@ -112,7 +112,7 @@ require(["vs/editor/editor.main"], () => {
                 {
                     label: "bot",
                     kind: monaco.languages.CompletionItemKind.Snippet,
-                    insertText: '(http.user_agent contains "${1:bot}") $0',
+                    insertText: "(http.user_agent contains \"${1:bot}\") $0",
                     insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                     documentation: "Rule to match a bot",
                 },

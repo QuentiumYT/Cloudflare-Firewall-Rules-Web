@@ -1,5 +1,5 @@
 .title {
-    @apply text-2xl text-center leading-[3.5rem] bg-gray-light h-14;
+    @apply text-2xl text-center p-4 mb-4 bg-gray-light;
 }
 
 .btn {
@@ -10,10 +10,10 @@
     }
 }
 
-input:checked~.dot {
+input:checked ~ .dot {
     transform: translateX(125%);
 }
 
-input:checked~.line {
+input:checked ~ .line {
     @apply bg-primary;
 }

@@ -6,8 +6,7 @@ const updateInfos = (name, state) => {
     currentState.innerText = "(" + state + ")";
 };
 
-const pausedOption = document.getElementById("paused");
-const priorityOption = document.getElementById("priority");
+const enabledOption = document.getElementById("enabled");
 
 const changeHeader = (key, value) => {
     const codeValue = cfeditor.getValue();
@@ -16,13 +15,9 @@ const changeHeader = (key, value) => {
     const header = parseHeader(firstLine);
 
     if (header !== null) {
-        header[key] = value;
-        let newHeader = generateHeader(header);
-        // Fix when header is created and number of real lines is 1
-        if (lines.length <= 3) {
-            newHeader = newHeader + "\n";
-        }
-        cfeditor.setValue(newHeader + codeValue.substring(firstLine.length + 1));
+        let updatedHeader = { ...header };
+        updatedHeader[key] = value;
+        cfeditor.setValue(generateHeader(updatedHeader) + "\n" + codeValue.substring(firstLine.length + 1));
     } else {
         let newHeader = {};
         newHeader[key] = value;
@@ -39,33 +34,31 @@ const generateHeader = (obj) => {
     return "#!" + header + "!#";
 };
 
-const parseHeader = (headerLine) => {
-    if (headerLine.startsWith("#!") && headerLine.endsWith("!#")) {
-        headerLine = headerLine.substring(2);
-        headerLine = headerLine.substring(0, headerLine.length - 2);
+const parseHeader = (line) => {
+    if (line.startsWith("#!") && line.endsWith("!#")) {
+        const headerLine = line.substring(2, line.length - 2);
 
-        let header = headerLine.split(" ").reduce((obj, item) => {
+        return headerLine.split(" ").reduce((obj, item) => {
             let [key, value] = item.split(":");
             if (value !== undefined) {
                 obj[key] = value;
             }
             return obj;
         }, {});
-        return header;
     } else {
         return null;
     }
 };
 
 const askName = async () => {
-    Swal.fire({
+    return Swal.fire({
         title: "Create a new rule",
         text: "Enter a name for the rule",
         input: "text",
         inputAttributes: {
             autocapitalize: "off",
         },
-        showCancelButton: true,
+        confirmButtonColor: "#0051c3",
         confirmButtonText: "Save",
         showLoaderOnConfirm: true,
         preConfirm: (name) => {
@@ -73,12 +66,6 @@ const askName = async () => {
                 cfeditor.currentFile = name + ".txt";
                 updateInfos(cfeditor.currentFile, cfeditor.currentState);
                 setEditorState("edited");
-                if (cfeditor.isCreated === undefined) {
-                    cfeditor.isCreated = true;
-                    createRule();
-                } else {
-                    saveRule();
-                }
             } else {
                 Swal.showValidationMessage("Rule name must be at least 4 characters long");
             }
@@ -87,17 +74,18 @@ const askName = async () => {
 };
 
 const createRule = async () => {
-    if (cfeditor.isCreated === true) {
-        actionSelect.set("");
-        pausedOption.checked = false;
-        priorityOption.value = "";
-
-        cfeditor.setValue("# enter your cloudflare rules here");
-    } else {
-        askName();
+    if (cfeditor.getValue() !== "") {
+        await askName().then((result) => {
+            if (result.value) {
+                saveRule(true);
+                document.getElementById("rules").innerHTML += `
+                    <li class="text-white text-sm bg-secondary p-2 rounded-md cursor-pointer">
+                        <a class="block" onclick="loadRule('${result.value}.txt')">${result.value}</a>
+                    </li>
+                `;
+            }
+        });
     }
-
-    cfeditor.isCreated = undefined;
 };
 
 const loadRule = async (name) => {
@@ -107,8 +95,8 @@ const loadRule = async (name) => {
             text: "You have unsaved changes in the current rule, if you switch it will be lost forever :/",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
+            confirmButtonColor: "#0051c3",
+            cancelButtonColor: "#e3342f",
             confirmButtonText: "Yes, switch to it!",
         }).then((result) => {
             return result.isConfirmed;
@@ -128,13 +116,11 @@ const loadRule = async (name) => {
             let header = parseHeader(text.split(/\r?\n/g)[0]);
 
             if (header !== null) {
-                actionSelect.set(header.action);
-                pausedOption.checked = header.paused === "False";
-                priorityOption.value = header.priority | "";
+                actionSelect.setSelected(header.action);
+                enabledOption.checked = header.enabled ? header.enabled === "True" : true;
             } else {
-                actionSelect.set("");
-                pausedOption.checked = false;
-                priorityOption.value = "";
+                actionSelect.setSelected("");
+                enabledOption.checked = true;
             }
         });
 
@@ -146,9 +132,8 @@ const loadRule = async (name) => {
 const saveRule = async (silent = false) => {
     let name = cfeditor.currentFile;
 
-    if (name === undefined && cfeditor.getValue() !== "") {
-        askName();
-        cfeditor.isCreated = true;
+    if (name === undefined) {
+        createRule();
     }
 
     if (cfeditor.currentState === "loaded" && cfeditor.getValue() !== "") {
@@ -222,8 +207,8 @@ const deleteRule = async () => {
             text: "You can save it back if you stay on the page, else it will be deleted forever :/",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
+            confirmButtonColor: "#0051c3",
+            cancelButtonColor: "#e3342f",
             confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             return result.isConfirmed;
@@ -268,7 +253,7 @@ const deleteRule = async () => {
 const sendRule = () => {
     saveRule(true);
     const name = cfeditor.currentFile;
-    if (name !== undefined && domainSelect.data.data.length > 0) {
+    if (name !== undefined && domainSelect.getSelected().length > 0) {
         document.getElementById("rule").value = name;
         return true;
     }
@@ -318,7 +303,7 @@ const importRule = async () => {
             })
                 .then((result) => {
                     if (result.isConfirmed) {
-                        const domain = result.value.domain;
+                        const { domain } = result.value;
                         const rules = Object.fromEntries(
                             result.value.rules.map((rule) => [rule.description, rule.description])
                         );
@@ -342,8 +327,7 @@ const importRule = async () => {
                                     body: formData,
                                 });
                                 const data = await response.json();
-                                data.rule = rule.replace("/", "_");
-                                return data;
+                                return data.rule;
                             },
                             inputValidator: (value) => {
                                 if (!value) {
@@ -355,6 +339,11 @@ const importRule = async () => {
                             .then((result) => {
                                 if (result.isConfirmed) {
                                     loadRule(result.value.rule + ".txt");
+                                    document.getElementById("rules").innerHTML += `
+                                        <li class="text-white text-sm bg-secondary p-2 rounded-md cursor-pointer">
+                                            <a class="block" onclick="loadRule('${result.value.rule}.txt')">${result.value.rule}</a>
+                                        </li>
+                                    `;
                                 }
                             });
                     }
@@ -369,10 +358,6 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-pausedOption.addEventListener("change", (e) => {
-    changeHeader("paused", e.target.checked ? "False" : "True");
-});
-
-priorityOption.addEventListener("change", (e) => {
-    changeHeader("priority", e.target.value);
+enabledOption.addEventListener("change", (e) => {
+    changeHeader("enabled", e.target.checked ? "True" : "False");
 });

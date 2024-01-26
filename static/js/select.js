@@ -1,37 +1,30 @@
 let actionSelect = new SlimSelect({
     select: "#action",
-    beforeOnChange: (selected) => {
-        changeHeader("action", selected.value);
-    }
+    events: {
+        beforeChange: (selected) => {
+            changeHeader("action", selected[0].value);
+        },
+    },
 });
-
-actionSelect.set("");
 
 let domainSelect = new SlimSelect({
     select: "#domain",
-    allowDeselectOption: true,
-    closeOnSelect: false,
-    deselectLabel: "✘",
-    onChange: (domains) => {
-        domains = domains.map((domain) => {
-            return domain.value;
-        });
-        localStorage.setItem("domains", JSON.stringify(domains));
-    }
+    settings: {
+        allowDeselect: true,
+        closeOnSelect: false,
+        placeholderText: "Select domains",
+    },
+    events: {
+        afterChange: (domains) => {
+            const domainsList = domains.map((domain) => {
+                return domain.value;
+            });
+            localStorage.setItem("domains", JSON.stringify(domainsList));
+        },
+    },
 });
 
 if (localStorage.getItem("domains")) {
     const domains = JSON.parse(localStorage.getItem("domains"));
-    domainSelect.set(domains);
+    domainSelect.setSelected(domains);
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    const select = domainSelect.slim.container.querySelector(".ss-multi-selected");
-    let remove = document.createElement("span");
-    remove.innerText = "🗑️";
-    select.appendChild(remove);
-
-    remove.addEventListener("click", () => {
-        domainSelect.set([]);
-    });
-});

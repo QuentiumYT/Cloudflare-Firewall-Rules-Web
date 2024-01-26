@@ -4,18 +4,17 @@
 
 {% block link %}
 <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/sweetalert2/dist/sweetalert2.min.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/slim-select/dist/slimselect.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/slim-select/dist/slimselect.css') }}">
 {% endblock %}
 
 {% block body %}
-
-<main class="flex flex-col lg:flex-row">
-    <aside class="flex flex-col min-w-[300px]">
-        <h2 class="title mb-2 border-x border-stone-300">Available rules</h2>
-        <ul class="-lg:max-w-2xl -lg:mx-auto" role="list">
+<main class="flex flex-col lg:flex-row flex-grow">
+    <aside class="flex flex-col min-w-72">
+        <h2 class="title border-x border-stone-300">Available rules</h2>
+        <ul id="rules" class="flex flex-col gap-2 mx-2 -lg:mx-auto" role="list">
             {% for rule in rules %}
-            <li class="text-white text-sm m-2 bg-secondary p-2 rounded-md cursor-pointer">
-                <a class="block" onclick="loadRule('{{ rule }}')">{{ rule }}</a>
+            <li class="text-white text-sm bg-secondary p-2 rounded-md cursor-pointer">
+                <a class="block" onclick="loadRule('{{ rule }}')">{{ rule | replace('.txt', '') }}</a>
             </li>
             {% endfor %}
 
@@ -36,14 +35,14 @@
     </aside>
 
     <section class="flex flex-col flex-1 -lg:order-1">
-        <h2 class="title mb-4 border-x border-stone-300">Online rule editor</h2>
+        <h2 class="title border-x border-stone-300">Online rule editor</h2>
 
         <p class="text-xl mb-4">
             <span id="current-file">&nbsp;</span>
             <span id="current-state">&nbsp;</span>
         </p>
 
-        <p class="-lg:mx-4">This is a rule editor for the <a href="https://developers.cloudflare.com/firewall/" target="_BLANK" class="text-secondary">Cloudflare Firewall</a> using the same syntax and expressions.</p>
+        <p class="-lg:mx-4">This is a rule editor for the <a href="https://developers.cloudflare.com/waf/custom-rules/" target="_blank" class="text-secondary">Cloudflare WAF Custom rules</a> using the same syntax and expressions.</p>
 
         <div id="container" class="max-h-full h-96 border border-gray-light"></div>
 
@@ -83,8 +82,8 @@
 
             {% endwith %}
 
-            <form class="flex -2xl:justify-evenly -xl:flex-wrap" action="{{ url_for('send_rule') }}" method="POST" onsubmit="return sendRule()">
-                <select id="domain" name="domains" class="md:w-96 mt-8" multiple>
+            <form class="flex -2xl:justify-evenly items-center -xl:flex-wrap gap-16 mt-8" action="{{ url_for('send_rule') }}" method="POST" onsubmit="return sendRule();">
+                <select id="domain" name="domains" class="md:w-96" multiple>
                     {% for domain in domains %}
                     <option value="{{ domain.name }}">{{ domain.name }}</option>
                     {% endfor %}
@@ -92,7 +91,7 @@
 
                 <input type="hidden" id="rule" name="rule">
 
-                <div class="my-8 xl:ml-20">
+                <div>
                     <button class="btn" name="action" value="create">Create</button>
                     <span class="mx-4">OR</span>
                     <button class="btn" name="action" value="update">Update</button>
@@ -103,39 +102,33 @@
         </div>
     </section>
 
-    <section class="flex flex-col">
-        <h2 class="title mb-4 border-x border-stone-300">Status</h2>
+    <section class="flex flex-col min-w-48">
+        <h2 class="title border-x border-stone-300">Status</h2>
 
-        <div class="flex flex-row lg:flex-col -lg:justify-evenly lg:mx-2">
-            <div class="mb-4">
+        <div class="flex flex-col gap-2 mx-2 -lg:mx-auto">
+            <div class="flex flex-col mb-4">
                 <p>Action:</p>
-                <select id="action" class="w-[11.25rem]">
+                <select id="action" class="w-48">
                     <option value="managed_challenge">Managed Challenge (Recommended)</option>
-                    <option value="block">Block</option>
                     <option value="js_challenge">JS Challenge</option>
-                    <option value="allow">Allow</option>
-                    <option value="bypass">Bypass</option>
-                    <option value="challenge">Legacy CAPTCHA</option>
-                    <option value="log">Log (Business only)</option>
+                    <option value="challenge">Interactive Challenge</option>
+                    <option value="block">Block</option>
+                    <option value="skip">Skip</option>
+                    <option value="log">Log (Enterprise only)</option>
                 </select>
             </div>
 
-            <div class="lg:flex mb-4">
+            <div class="flex flew-row mb-4">
                 <p>Active:</p>
                 <div class="flex items-center justify-center w-full -lg:mt-2">
-                    <label for="paused" class="flex items-center cursor-pointer">
+                    <label for="enabled" class="flex items-center cursor-pointer">
                         <div class="relative">
-                            <input type="checkbox" id="paused" class="sr-only">
+                            <input type="checkbox" id="enabled" class="sr-only">
                             <div class="line block bg-gray-inactive w-10 h-5 rounded-full border border-gray-active"></div>
                             <div class="dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition"></div>
                         </div>
                     </label>
                 </div>
-            </div>
-
-            <div class="mb-4">
-                <p>Priority:</p>
-                <input type="number" id="priority" value="" class="h-10 w-36 p-1.5 border border-gray-active rounded-md">
             </div>
         </div>
     </section>
@@ -147,5 +140,4 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/editor.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/select.js') }}"></script>
 </main>
-
 {% endblock %}
