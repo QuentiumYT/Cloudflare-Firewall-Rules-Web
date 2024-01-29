@@ -17,8 +17,6 @@ from flask import (
 )
 from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user
 
-# pylint: disable=redefined-outer-name
-
 dotenv.load_dotenv()
 if os.environ.get("FLASK_SECRET"):
     secret = os.environ.get("FLASK_SECRET")
@@ -175,36 +173,41 @@ def import_rule():
 @app.route("/index")
 @app.route("/home")
 def index():
+    # Change directory if needed
+    if os.environ.get("CUSTOM_DEFAULT_FOLDER") and os.environ.get("CUSTOM_DEFAULT_FOLDER") != cf.utils.directory:
+        cf.utils.change_directory(str(os.environ.get("CUSTOM_DEFAULT_FOLDER")))
+
+    rules = os.listdir(cf.utils.directory)
+
+    user: User | None = None
+    logged_user: User | None = None
+
     # Autologin with key or token
     if os.environ.get("AUTOLOGIN") == "true" and not current_user.is_authenticated:
         if is_login_key:
             auth = cf.auth_key(os.environ.get("CF_EMAIL"), os.environ.get("CF_API_KEY"))
 
             with app.app_context():
-                handle_auth(auth, "key")
+                logged_user = handle_auth(auth, "key")
 
         elif is_login_token:
             auth = cf.auth_token(os.environ.get("CF_API_TOKEN"))
 
             with app.app_context():
-                handle_auth(auth, "token")
+                logged_user = handle_auth(auth, "token")
 
-    if os.environ.get("CUSTOM_DEFAULT_FOLDER") and os.environ.get("CUSTOM_DEFAULT_FOLDER") != cf.utils.directory:
-        cf.utils.change_directory(str(os.environ.get("CUSTOM_DEFAULT_FOLDER")))
-
-    rules = os.listdir(cf.utils.directory)
-
-    if current_user.is_authenticated:
+        if logged_user.is_authenticated:
+            user = current_users[logged_user.id]
+    elif current_user.is_authenticated:
         user = current_users[current_user.id]
-        if not user.domains:
-            domains = cf.domains
-            user.domains = domains
-        else:
-            domains = user.domains
+
+    if user and not user.domains:
+        domains = cf.domains
+        user.domains = domains
     else:
         domains = []
 
-    return render_template("index.jinja2", user=current_user, rules=rules, domains=domains)
+    return render_template("index.jinja2", user=logged_user or current_user, rules=rules, domains=domains)
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
@@ -238,7 +241,7 @@ def handle_auth(auth: dict, method: str):
 
         current_users[user.id] = user
 
-        return redirect(url_for("index"))
+        return user if os.environ.get("AUTOLOGIN") == "true" else redirect(url_for("index"))
 
     error = auth["errors"][0]["message"]
 
@@ -282,6 +285,8 @@ if __name__ == "__main__":
 
     app.register_blueprint(bp)
 
-    app.run(host="0.0.0.0",
-            port=80 if is_docker else 5502,
-            debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=80 if is_docker else 5502,
+        debug=False,
+    )
