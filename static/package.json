@@ -1,8 +1,8 @@
 {
   "description": "This package.json is here because Flask cannot access files outside the static folder",
   "dependencies": {
-    "monaco-editor": "^0.45.0",
-    "slim-select": "^2.8.1",
-    "sweetalert2": "^11.10.4"
+    "monaco-editor": "^0.55.1",
+    "slim-select": "^3.2.0",
+    "sweetalert2": "^11.26.3"
   }
 }

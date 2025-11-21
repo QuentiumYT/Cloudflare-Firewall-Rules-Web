@@ -18,12 +18,9 @@ from flask import (
 from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user
 
 dotenv.load_dotenv()
-if os.environ.get("FLASK_SECRET"):
-    secret = os.environ.get("FLASK_SECRET")
-else:
-    secret = os.urandom(12).hex()
+secret = os.environ.get("FLASK_SECRET", None) or os.urandom(12).hex()
 
-cf: Cloudflare = None
+cf: Cloudflare
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secret
@@ -34,10 +31,12 @@ login_manager = LoginManager()
 login_manager.login_view = "profile"
 login_manager.init_app(app)
 
+
 class User(UserMixin):
     id = None
     email = None
     domains = None
+
 
 current_users: dict[str, User] = {}
 
@@ -49,19 +48,19 @@ is_login_key = os.environ.get("CF_EMAIL") and os.environ.get("CF_API_KEY")
 is_login_token = os.environ.get("CF_API_TOKEN")
 
 
-
 @app.route("/get-file/")
 @app.route("/get-file/<path:filename>", methods=["GET"])
 def get_file(filename=None):
     if not filename:
         return {"error": "No file path provided"}, 400
 
-    if not os.path.isfile(cf.utils.directory + "/" + filename):
+    if not os.path.isfile(f"{cf.utils.directory}/{filename}"):
         return {"error": "File not found"}, 404
 
     filename = filename.replace("%20", "")
 
-    return send_file(cf.utils.directory + "/" + filename)
+    return send_file(f"{cf.utils.directory}/{filename}")
+
 
 @app.route("/save-file/")
 @app.route("/save-file/<path:filename>", methods=["POST"])
@@ -69,10 +68,11 @@ def save_file(filename=None):
     if not filename:
         return {"error": "No file path provided"}, 400
 
-    with open(cf.utils.directory + "/" + filename, "wb") as file:
+    with open(f"{cf.utils.directory}/{filename}", "wb") as file:
         file.write(request.data)
 
     return {"success": "File saved"}
+
 
 @app.route("/delete-file/")
 @app.route("/delete-file/<path:filename>", methods=["DELETE"])
@@ -80,21 +80,22 @@ def delete_file(filename=None):
     if not filename:
         return {"error": "No file path provided"}, 400
 
-    if not os.path.isfile(cf.utils.directory + "/" + filename):
+    if not os.path.isfile(f"{cf.utils.directory}/{filename}"):
         return {"error": "File not found"}, 404
 
     filename = filename.replace("%20", "")
 
-    os.remove(cf.utils.directory + "/" + filename)
+    os.remove(f"{cf.utils.directory}/{filename}")
 
     return {"success": "File deleted"}
+
 
 @app.route("/send-rule", methods=["POST"])
 def send_rule():
     domains = request.form.getlist("domains")
     action = request.form.get("action")
     rule_file = request.form.get("rule")
-    rule_name = rule_file.strip(".txt")
+    rule_name = rule_file.removesuffix(".txt")
 
     if not rule_file:
         flash("No rule provided", "danger")
@@ -112,33 +113,34 @@ def send_rule():
         for domain in domains:
             r = cf.create_rule(domain, rule_file)
             if r:
-                success[domain] = str(r)
+                success[domain] = r
             else:
-                failed[domain] = r["error"]
+                failed[domain] = r
     elif action == "update":
         for domain in domains:
             r = cf.update_rule(domain, rule_file)
             if r:
-                success[domain] = str(r)
+                success[domain] = r
             else:
-                failed[domain] = r["error"]
+                failed[domain] = r
     elif action == "delete":
         for domain in domains:
             r = cf.delete_rule(domain, rule_name)
             if r:
-                success[domain] = str(r)
+                success[domain] = r
             else:
-                failed[domain] = r["error"]
+                failed[domain] = r
     else:
         flash("No action was specified.", "danger")
 
     if success:
         flash(f"Rule '{rule_name}' has been successfully {action}d in {', '.join(success.keys())}.", "success")
     if failed:
-        error = "<br>- ".join([x + ": " + y for x, y in failed.items()])
-        flash(f"An issue ocurred when {action[:-1]}ing '{rule_name}' in {', '.join(failed.keys())}.<br>{error}", "warning")
+        # error = "<br>- ".join([f"{x}: {y}" for x, y in failed.items()])
+        flash(f"An issue occurred when {action[:-1]}ing '{rule_name}' in {', '.join(failed.keys())}.", "warning")
 
     return redirect(url_for("index"))
+
 
 @app.route("/list-domains")
 def list_domains():
@@ -146,6 +148,7 @@ def list_domains():
         return {"error": "Not logged in"}, 400
 
     return {"domains": current_user.domains}
+
 
 @app.route("/list-rules")
 @app.route("/list-rules/<domain>")
@@ -158,6 +161,7 @@ def list_rules(domain=None):
 
     return {"rules": cf.rules(domain)}
 
+
 @app.route("/import-rule", methods=["POST"])
 def import_rule():
     domain = request.form.get("domain")
@@ -166,7 +170,6 @@ def import_rule():
     cf.export_rule(domain, rule_name=rule)
 
     return {"success": "Rule imported successfully"}
-
 
 
 @app.route("/")
@@ -182,21 +185,21 @@ def index():
     user: User | None = None
     logged_user: User | None = None
 
-    # Autologin with key or token
+    # Auto login with key or token
     if os.environ.get("AUTOLOGIN") == "true" and not current_user.is_authenticated:
         if is_login_key:
-            auth = cf.auth_key(os.environ.get("CF_EMAIL"), os.environ.get("CF_API_KEY"))
+            auth = cf.auth_key(os.environ.get("CF_EMAIL", ""), os.environ.get("CF_API_KEY", ""))
 
             with app.app_context():
                 logged_user = handle_auth(auth, "key")
 
         elif is_login_token:
-            auth = cf.auth_token(os.environ.get("CF_API_TOKEN"))
+            auth = cf.auth_token(os.environ.get("CF_API_TOKEN", ""))
 
             with app.app_context():
                 logged_user = handle_auth(auth, "token")
 
-        if logged_user.is_authenticated:
+        if logged_user and logged_user.is_authenticated:
             user = current_users[logged_user.id]
     elif current_user.is_authenticated:
         user = current_users[current_user.id]
@@ -208,6 +211,7 @@ def index():
         domains = []
 
     return render_template("index.jinja2", user=logged_user or current_user, rules=rules, domains=domains)
+
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
@@ -223,10 +227,10 @@ def profile():
 
     return render_template("profile.jinja2", user=current_user, directory=directory)
 
+
 @app.route("/components")
 def components():
     return render_template("components.jinja2") if app.debug else abort(404)
-
 
 
 def handle_auth(auth: dict, method: str):
@@ -249,6 +253,7 @@ def handle_auth(auth: dict, method: str):
 
     return redirect(url_for("profile"))
 
+
 @bp.route("/login-key", methods=["POST"])
 def login_key():
     email = request.form.get("email")
@@ -258,6 +263,7 @@ def login_key():
 
     return handle_auth(auth, "key")
 
+
 @bp.route("/login-token", methods=["POST"])
 def login_token():
     token = request.form.get("token")
@@ -265,6 +271,7 @@ def login_token():
     auth = cf.auth_token(token)
 
     return handle_auth(auth, "token")
+
 
 @bp.route("/logout", methods=["POST"])
 def logout():
@@ -274,10 +281,10 @@ def logout():
 
     return redirect(url_for("profile"))
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return current_users.get(user_id)
-
 
 
 if __name__ == "__main__":

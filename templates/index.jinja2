@@ -82,7 +82,7 @@
 
             {% endwith %}
 
-            <form class="flex -2xl:justify-evenly items-center -xl:flex-wrap gap-16 mt-8" action="{{ url_for('send_rule') }}" method="POST" onsubmit="return sendRule();">
+            <form class="flex -2xl:justify-evenly items-center -xl:flex-wrap gap-16 my-8" action="{{ url_for('send_rule') }}" method="POST" onsubmit="return sendRule();">
                 <select id="domain" name="domains" class="md:w-96" multiple>
                     {% for domain in domains %}
                     <option value="{{ domain.name }}">{{ domain.name }}</option>
@@ -134,7 +134,7 @@
     </section>
 
     <script type="text/javascript" src="{{ url_for('static', filename='node_modules/sweetalert2/dist/sweetalert2.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='node_modules/slim-select/dist/slimselect.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='node_modules/slim-select/dist/slimselect.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='node_modules/monaco-editor/min/vs/loader.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/monaco.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/editor.js') }}"></script>

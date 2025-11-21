@@ -1,0 +1,21 @@
+[project]
+name = "cloudflare-waf-custom-rules"
+version = "1.1.0"
+description = "A Cloudflare web interface to bulk add / edit your WAF custom rules using Cloudflare's API wrapper"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Quentin Lienhardt", email = "pro@quentium.fr" }]
+dependencies = [
+  "cf-rules>=2.2",
+  "flask>=3.1",
+  "flask-login>=0.6",
+  "python-dotenv>=1.2",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/QuentiumYT/Cloudflare-Firewall-Rules-Web"
+"Documentation" = "https://quentiumyt.github.io/Cloudflare-Firewall-Rules/"
+"Source Code" = "https://github.com/QuentiumYT/Cloudflare-Firewall-Rules-Web"
+"Bug Reports" = "https://github.com/QuentiumYT/Cloudflare-Firewall-Rules-Web/issues"
